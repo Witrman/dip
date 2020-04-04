@@ -23,13 +23,14 @@ namespace Media_Editor_1._0._2
         public MainWindow()
         {
             InitializeComponent();
+            Button_Click(null,null);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             PhotoWindow photoWindow = new PhotoWindow();
             photoWindow.Show();
-            this.Close();
+            this.Close(); 
         }
 
         

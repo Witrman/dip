@@ -20,31 +20,35 @@ namespace Media_Editor_1._0._2
     /// </summary>
     public partial class PhotoWindow : Window
     {
+        private double statHeight, statWidht;
         public PhotoWindow()
         {
             InitializeComponent();
+
+            //временно
+            statHeight = photoImage.Height;
+            statWidht = photoImage.Width;
+
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFile = new OpenFileDialog(); 
+            OpenFileDialog openFile = new OpenFileDialog();
             openFile.Filter = "Изображение |*.png;*.jpeg;*.jpg;*.bmp";
             openFile.FilterIndex = 1;
             openFile.RestoreDirectory = true;
 
             if (openFile.ShowDialog() == true)
             {
-                BitmapImage loadImage = new BitmapImage();
-                loadImage.BeginInit();
-                loadImage.UriSource = new Uri(openFile.FileName);
-                loadImage.EndInit(); 
-                photoImage.Source = loadImage;
-                photoImage.Height = scrollViewer.Height;
-                photoImage.Width = scrollViewer.Width;
+                photoImage.Source = new BitmapImage(new Uri(openFile.FileName));
+                photoImage.Height = photoImage.Source.Height * (scrollViewer.ActualHeight / photoImage.Source.Height);
+                photoImage.Width = photoImage.Source.Width * (scrollViewer.ActualHeight / photoImage.Source.Width);
+                statHeight = photoImage.Height;
+                statWidht = photoImage.Width;
             }
 
         }
-         
+
 
 
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
@@ -53,23 +57,27 @@ namespace Media_Editor_1._0._2
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        { 
-            photoImage.Height = scrollViewer.Height * sliderZoom.Value / 100;
-            photoImage.Width = scrollViewer.Width * sliderZoom.Value / 100; 
+        {
+            if (statWidht != 0 && statWidht != 0)
+            {
+                photoImage.Height = (statHeight * (0.1+sliderZoom.Value / 100));
+                photoImage.Width = (statWidht * (0.1+sliderZoom.Value/ 100)); 
+            }
         }
 
-        private void scrollViewer_PreviewKeyUp(object sender, KeyEventArgs e)
-        {    
-        }
 
         private void scrollViewer_MouseWheel(object sender, MouseWheelEventArgs e)
-        {  
-                if (e.Delta > 0)
-                    sliderZoom.Value += 10;
+        {
+            if (e.Delta > 0)
+                sliderZoom.Value += 10;
 
-                else if (e.Delta < 0)
-                    sliderZoom.Value -= 10;
-          
+            else if (e.Delta < 0)
+                sliderZoom.Value += 10;
+
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        { 
         }
     }
 }
