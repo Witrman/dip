@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Media_Editor_1._0._2"
              StartupUri="MainWindow.xaml">
-    <Application.Resources>
-         
+    <Application.Resources> 
+        
     </Application.Resources>
 </Application>
