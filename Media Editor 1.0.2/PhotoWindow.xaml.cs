@@ -30,6 +30,7 @@ namespace Media_Editor_1._0._2
         private Point prev;
         private Canvas brushCanvas; 
         private Rectangle rect = new Rectangle(); 
+        private Ellipse ellips = new Ellipse();
         private bool isPaint = false;
         ScaleTransform st = new ScaleTransform();
 
@@ -87,12 +88,12 @@ namespace Media_Editor_1._0._2
                 sliderZoom.Value = 100;
             }
         }
-        //Закрытие программы
+        //Закрытие 
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
-        //зумирование канваса
+        //зумирование 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 
@@ -105,7 +106,6 @@ namespace Media_Editor_1._0._2
             lbl.Content = canvas.Height + "  " + zoomKoeficient + "  " + st.ScaleX + "   " +
             (canvas.Height * zoomKoeficient) + "    " + minZoom + "    " + xc;
         }
-
         private void scrollViewer_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
@@ -170,12 +170,10 @@ namespace Media_Editor_1._0._2
 
 
         private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-
+        { 
             setBrush();
             switch (buttonSelectedString)
-            {
-
+            { 
                 case "pointButton":
                     break;
                 case "brushButton":
@@ -186,6 +184,12 @@ namespace Media_Editor_1._0._2
                     break;
                 case "rectButton":
                     rectButtonDown(sender, e);
+                    break;
+                case "ellipsButton":
+                    ellipsButtonDown(sender, e);
+                    break;
+                case "deleteButton":
+                    buttonFullColor(sender, e);
                     break;
                 default:
                     break;
@@ -205,6 +209,11 @@ namespace Media_Editor_1._0._2
                 case "rectButton":
                     rectButtonMove(sender, e);
                     break;
+                case "ellipsButton":
+                    ellipsButtonMove(sender, e);
+                    break;
+                case "deleteButton":
+                    break;
                 default:
                     break;
             }
@@ -213,8 +222,7 @@ namespace Media_Editor_1._0._2
         { 
             switch (buttonSelectedString)
             {
-                case "pointButton":
-
+                case "pointButton": 
                     break;
                 case "brushButton":
                     buttonBrushMouseUp(sender, e);
@@ -223,6 +231,11 @@ namespace Media_Editor_1._0._2
                     break;
                 case "rectButton":
                     rectButtonUp(sender, e);
+                    break;
+                case "ellipsButton":
+                    ellipsButtonUp(sender, e);
+                    break;
+                case "deleteButton":
                     break;
                 default:
                     break;
@@ -250,6 +263,17 @@ namespace Media_Editor_1._0._2
             scrollViewer.Cursor = Cursors.Cross;
             buttonSelected(rectButton);
         }
+        private void ellipsButton_Click(object sender, RoutedEventArgs e)
+        {
+            scrollViewer.Cursor = Cursors.Cross;
+            buttonSelected(ellipsButton);
+        }
+        private void deleteButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            scrollViewer.Cursor = Cursors.Arrow;
+            buttonSelected(deleteButton);
+        }
 
         private void buttonSelected(Button selectButon)
         {    
@@ -257,6 +281,8 @@ namespace Media_Editor_1._0._2
             brushButton.Background = colorButtonNotSelected;
             colorFullButton.Background = colorButtonNotSelected;
             rectButton.Background = colorButtonNotSelected;
+            deleteButton.Background = colorButtonNotSelected;
+            ellipsButton.Background = colorButtonNotSelected;
             selectButon.Background = colorButtonSelected;
             buttonSelectedString = selectButon.Name;
         }
@@ -266,11 +292,36 @@ namespace Media_Editor_1._0._2
             try
             {
                 setBrush();
-                if (buttonSelectedString == "colorFullButton" &&
-                    sender.GetType().Name.ToString() == "Rectangle")
+                if (buttonSelectedString == "colorFullButton" )
                 {
-                    Rectangle rect = (Rectangle)sender;
-                    rect.Fill = color;
+                    switch (sender.GetType().Name.ToString())
+                    {
+                        case "Rectangle":
+                            ((Rectangle)sender).Fill = color;
+                            break;
+                        case "Ellips":
+                            ((Ellipse)sender).Fill = color;
+                            break;
+
+                    } 
+                }
+
+                if (buttonSelectedString == "deleteButton")
+                {
+                    switch (sender.GetType().Name.ToString())
+                    {
+                        case "Rectangle":
+                            canvas.Children.Remove((Rectangle)sender);
+                            break;
+                        case "Canvas":
+                            canvas.Children.Remove((Canvas)sender);
+                            break;
+                        case "Ellipse":
+                            canvas.Children.Remove((Ellipse)sender);
+                            break;
+
+                    }
+
                 }
             }
             catch (InvalidOperationException ex)
@@ -306,7 +357,8 @@ namespace Media_Editor_1._0._2
                         Width = Math.Abs(point.X - prev.X),
                         Height = Math.Abs(point.Y - prev.Y),
                         Fill = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
-                        Opacity = 0.2
+                        Stroke = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
+                        Opacity = 0.3
                     };
                     rect.SetValue(Canvas.LeftProperty, (prev.X <= point.X) ? prev.X : point.X);
                     rect.SetValue(Canvas.TopProperty, (prev.Y <= point.Y) ? prev.Y : point.Y); 
@@ -337,10 +389,74 @@ namespace Media_Editor_1._0._2
             {
             }
         }
-         
+
+        private void ellipsButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    prev = Mouse.GetPosition(canvas);
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+            }
+        }
+        private void ellipsButtonMove(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    canvas.Children.Remove(ellips);
+                    Point point = e.GetPosition(canvas);
+                    double x = point.X - prev.X;
+                    double y = point.Y - prev.Y;
+                    ellips = new Ellipse
+                    {
+                        Width = Math.Abs(point.X - prev.X),
+                        Height = Math.Abs(point.Y - prev.Y),
+                        Fill = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
+                        Stroke = new SolidColorBrush(Color.FromRgb(255, 255,255)),
+                        Opacity = 0.3
+                    };
+                    ellips.SetValue(Canvas.LeftProperty, (prev.X <= point.X) ? prev.X : point.X);
+                    ellips.SetValue(Canvas.TopProperty, (prev.Y <= point.Y) ? prev.Y : point.Y);
+                    ellips.MouseUp += new MouseButtonEventHandler(ellipsButtonUp);
+                    canvas.Children.Add(ellips);
+                }
+            }
+            catch (ArgumentException ex)
+            {
+            }
+        }
+        private void ellipsButtonUp(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                canvas.Children.Remove(ellips);
+                Point point = e.GetPosition(canvas);
+                double x = point.X - prev.X;
+                double y = point.Y - prev.Y;
+                var ellipsFn = new Ellipse { Width = Math.Abs(point.X - prev.X), Height = Math.Abs(point.Y - prev.Y), Fill = color };
+                ellipsFn.SetValue(Canvas.LeftProperty, (prev.X <= point.X) ? prev.X : point.X);
+                ellipsFn.SetValue(Canvas.TopProperty, (prev.Y <= point.Y) ? prev.Y : point.Y);
+                ellipsFn.MouseDown += new MouseButtonEventHandler(buttonFullColor);
+                ellipsFn.Opacity = opacitiValue;
+                canvas.Children.Add(ellipsFn);
+            }
+            catch (ArgumentException ex)
+            {
+            }
+        }
+
+
         private void liderOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             opacitiValue = sliderOpacity.Value / 100;
+            if (onFirst == 0) return;
+            labelOpacity.Content = sliderOpacity.Value.ToString("#.##") + "%";
         }
      
         private void buttonBrushMouseDown(object sender, MouseButtonEventArgs e)
@@ -352,6 +468,7 @@ namespace Media_Editor_1._0._2
                 brushCanvas.Width = canvas.Width;
                 brushCanvas.Height = canvas.Height;
                 brushCanvas.Opacity = opacitiValue;
+                brushCanvas.MouseDown += new MouseButtonEventHandler(buttonFullColor);
                 canvas.Children.Add(brushCanvas);
                 isPaint = true;
                 prev = Mouse.GetPosition(canvas);
@@ -394,5 +511,7 @@ namespace Media_Editor_1._0._2
                 System.Windows.MessageBox.Show("isError");
             }
         }
+         
+
     }
 }
