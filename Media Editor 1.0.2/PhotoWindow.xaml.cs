@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,10 +22,10 @@ namespace Media_Editor_1._0._2
         private SolidColorBrush colorButtonSelected = new SolidColorBrush(Color.FromRgb(42, 42, 42)),
             colorButtonNotSelected = new SolidColorBrush(Color.FromRgb(82, 83, 88)),
             color;
-        private String buttonSelectedString = "";
+        private String buttonSelectedString = "",file="";
         private Point prev, pointToDrag;
         private Canvas brushCanvas;
-        private Shape shape, shapeToDrag;
+        private Shape shape; 
         private RichTextBox richTextBox;
         private bool isPaint = false, resizeX = false, resizeY = false;
         ScaleTransform st = new ScaleTransform();
@@ -33,12 +34,12 @@ namespace Media_Editor_1._0._2
         {
             InitializeComponent();
             onFirst = canvas.Height;
-            canvas.LayoutTransform = st;
+            canvas.LayoutTransform = st; 
             shape = new Line();
+            zoomKoeficient = 550 / canvas.Height;
+            sliderZoom.Value = 100;
             textFontBox.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
-            textFontBox.SelectedIndex = 0;
-            textFontSizeBox.ItemsSource = new List<double>() { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
-            textFontSizeBox.SelectedIndex = 5;
+            textFontBox.SelectedIndex = 0; 
             buttonSelected(pointButton);
         }
         //Открытие файла
@@ -55,19 +56,23 @@ namespace Media_Editor_1._0._2
             {
                 canvas.Children.Clear();
                 BitmapImage source = new BitmapImage(new Uri(openFile.FileName));
+                file = openFile.FileName;
                 canvas.Background = new ImageBrush(source);
                 canvas.Height = source.PixelHeight;
-                canvas.Width = source.PixelWidth;
+                canvas.Width = source.PixelWidth; 
                 zoomKoeficient = 550 / canvas.Height;
                 sliderZoom.Value = 100;
             }
 
         }
-        //Сохранение //занимает много места
+        //Сохранение //занимает много места y'hjjj,bn
         private void MenuItem_Click_2(object sender, RoutedEventArgs e)
         {
             SaveFileDialog save = new SaveFileDialog();
             save.Filter = "Изображение |*.png;*.jpeg;*.jpg;*.bmp";
+            if (file.Length < 6) file = ".png";
+           
+            save.DefaultExt = file.Substring(file.IndexOf("."));
             save.Title = "Сохранение файла";
             if (save.ShowDialog() == true)
             {
@@ -76,14 +81,23 @@ namespace Media_Editor_1._0._2
                 var rtb = new RenderTargetBitmap((int)canvas.Width, (int)canvas.Height, 96d, 96d, PixelFormats.Default);
                 canvas.Measure(new Size((int)canvas.Width, (int)canvas.Height));
                 canvas.Arrange(new Rect(new Size((int)canvas.Width, (int)canvas.Height)));
-                rtb.Render(canvas);
-
+                rtb.Render(canvas); 
                 PngBitmapEncoder BufferSave = new PngBitmapEncoder();
                 BufferSave.Frames.Add((BitmapFrame.Create(rtb)));
-                using (var fs = System.IO.File.OpenWrite(save.FileName))
+                file = save.FileName;
+                save.Reset();
+                canvas = null;
+                if (File.Exists(file)) File.Delete(file);
+                using (var fs = File.OpenWrite(file))
                 {
                     BufferSave.Save(fs);
+                    fs.Dispose();
                 }
+                  
+                    BitmapImage source = new BitmapImage(new Uri(save.FileName));
+                    canvas.Background = new ImageBrush(source);
+                    canvas.Height = source.PixelHeight;
+                    canvas.Width = source.PixelWidth; 
                 sliderZoom.Value = 100;
             }
         }
@@ -101,9 +115,8 @@ namespace Media_Editor_1._0._2
             if (minZoom < 250) return;
             double xc = (sliderZoom.Value / 100);
             st.ScaleX = zoomKoeficient + (sliderZoom.Value / 100) - 1;
-            st.ScaleY = zoomKoeficient + (sliderZoom.Value / 100) - 1;
-            lbl.Content = canvas.Height + "  " + zoomKoeficient + "  " + st.ScaleX + "   " +
-            (canvas.Height * zoomKoeficient) + "    " + minZoom + "    " + xc;
+            st.ScaleY = zoomKoeficient + (sliderZoom.Value / 100) - 1; 
+            labelZoom.Content = sliderZoom.Value.ToString("#.##") + " %";
         }
         private void scrollViewer_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -118,7 +131,7 @@ namespace Media_Editor_1._0._2
         {
             opacitiValue = sliderOpacity.Value / 100;
             if (onFirst == 0) return;
-            labelOpacity.Content = sliderOpacity.Value.ToString("#.##") + "%";
+            labelOpacity.Content = sliderOpacity.Value.ToString("#.##") + " %";
         }
         //Инициализация кисти
         private void setBrush()
@@ -180,6 +193,30 @@ namespace Media_Editor_1._0._2
             setBrush();
 
         }
+        private void fontSize_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            double sizeFont = 8;
+            Double.TryParse(fontSize.Text, out sizeFont);
+
+            if (!Char.IsDigit(e.Text, 0))
+            {
+                if (sizeFont <= 8) fontSize.Text = "8";
+                if (sizeFont > 300) fontSize.Text = "300";
+                e.Handled = true; 
+            }
+        }
+        private void fontSize_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            double sizeFont = 8;
+            Double.TryParse(fontSize.Text, out sizeFont);
+
+            if (e.Delta > 0 && sizeFont < 300)
+                sizeFont += 1;
+
+            else if (e.Delta < 0 && sizeFont >8)
+                sizeFont -= 1; 
+            fontSize.Text = sizeFont.ToString();
+        }
         private void isTransformation_Checked(object sender, RoutedEventArgs e)
         {
             try
@@ -210,6 +247,8 @@ namespace Media_Editor_1._0._2
                     element.MouseDown -= new MouseButtonEventHandler(buttonPointMouseDown);
                     element.MouseMove -= new MouseEventHandler(buttonPointMouseMove);
                     element.MouseUp -= new MouseButtonEventHandler(buttonPointMouseUp);
+                    if (element.GetType().Name.ToString() != "RichTextBox") ((Shape)element).StrokeThickness = 0;
+                    if (element.GetType().Name.ToString() == "RichTextBox") ((RichTextBox)element).BorderThickness = new Thickness(1);
 
                 }
                 cleanShapeCanvas();
@@ -388,14 +427,12 @@ namespace Media_Editor_1._0._2
         {
 
             scrollViewer.Cursor = Cursors.Arrow;
-            buttonSelected(deleteButton);
-            lbl.Content += "";
-        }
-
+            buttonSelected(deleteButton); 
+        } 
         private void buttonSelected(Button selectButon)
         {
             if (buttonSelectedString != "") ((Button)this.FindName(buttonSelectedString)).Background = colorButtonNotSelected;
-            cleanShapeCanvas();
+            cleanShapeCanvas(); 
             selectButon.Background = colorButtonSelected;
             buttonSelectedString = selectButon.Name;
             if (isTransformation.IsChecked.Value && buttonSelectedString != "pointButton") isTransformation.IsChecked = false;
@@ -405,42 +442,33 @@ namespace Media_Editor_1._0._2
         {
             try
             {
+                if (!isTransformation.IsChecked.Value) return;
                 if (e.LeftButton == MouseButtonState.Pressed 
                     && sender.GetType().Name.ToString() != "Canvas"
                      && sender.GetType().Name.ToString() != "ScrollView")
                 {
-                    isPaint = true; 
-                    canvas.Children.Remove(shapeToDrag);
+                    if (shape != null) shape.StrokeThickness = 0;
+                    if (richTextBox != null) richTextBox.BorderThickness = new Thickness(1);
+                    shape = null;
+                    richTextBox = null;
+                    isPaint = true;  
                     if (sender.GetType().Name.ToString() == "RichTextBox") {
                         richTextBox = (RichTextBox)sender; 
                         prev = new Point(Canvas.GetLeft(richTextBox), Canvas.GetTop(richTextBox)); 
                         resizeOnHeight = richTextBox.Height;
                         resizeOnWidth = richTextBox.Width;
-                        richTextBox.SetValue(Canvas.LeftProperty, prev.X);
-                        richTextBox.SetValue(Canvas.TopProperty, prev.Y);
+                        richTextBox.BorderThickness = new Thickness(3);  
                     }
                     if (sender.GetType().Name.ToString() == "Rectangle"
-                        && sender.GetType().Name.ToString() == "Ellipse") {
-                        shape = (Shape)sender;
+                        || sender.GetType().Name.ToString() == "Ellipse") {
+                        shape = (Shape)sender; 
                         prev = new Point(Canvas.GetLeft(shape), Canvas.GetTop(shape)); 
                         resizeOnHeight = shape.Height;
-                        resizeOnWidth = shape.Width; 
-                        shape.SetValue(Canvas.LeftProperty, prev.X);
-                        shape.SetValue(Canvas.TopProperty, prev.Y);
+                        shape.StrokeThickness = 2;
+                        shape.Stroke = new SolidColorBrush(Colors.AliceBlue);
+                        resizeOnWidth = shape.Width;  
                     } 
-                    pointToDrag = e.GetPosition(canvas);
-                    shapeToDrag = new Rectangle
-                    {
-                        Tag = "shapeTransform",
-                        Width = resizeOnWidth + 4,
-                        Height = resizeOnHeight + 4,
-                        Opacity = 0.2,
-                        StrokeThickness = 4,
-                        Stroke = new SolidColorBrush(Colors.White) 
-                    };
-                    shapeToDrag.SetValue(Canvas.LeftProperty, prev.X - 2);
-                    shapeToDrag.SetValue(Canvas.TopProperty, prev.Y - 2); 
-                    canvas.Children.Add(shapeToDrag); 
+                    pointToDrag = Mouse.GetPosition(canvas); 
                     if (scrollViewer.Cursor == Cursors.SizeWE || scrollViewer.Cursor == Cursors.SizeNWSE) resizeX = true;
                     if (scrollViewer.Cursor == Cursors.SizeNS || scrollViewer.Cursor == Cursors.SizeNWSE) resizeY = true; 
 
@@ -454,38 +482,45 @@ namespace Media_Editor_1._0._2
         {
             try
             {
+                if (!isTransformation.IsChecked.Value) return;
                 bool resX = false, resY = false;
-                Point position = e.GetPosition(shapeToDrag);
-                if (position.X >= shape.Width - 30 && position.X <= shape.Width + 15) resX = true;
-                if (position.Y >= shape.Height - 30 && position.Y <= shape.Height + 15) resY = true;
+                double x1 = 0, y1 = 0;
+                Point position=new Point(x1,y1);
+                if (richTextBox != null) { x1 = richTextBox.Width;y1 = richTextBox.Height; position = e.GetPosition(richTextBox); }
+                if (shape != null) { x1 = shape.Width; y1 = shape.Height; position = e.GetPosition(shape); }
+                
+                if (position.X >= x1- 30 && position.X <= x1 ) resX = true;
+                if (position.Y >= y1 - 30 && position.Y <= y1) resY = true; 
                 if (resX && resY) scrollViewer.Cursor = Cursors.SizeNWSE;
                 else if (resX) scrollViewer.Cursor = Cursors.SizeWE;
                 else if (resY) scrollViewer.Cursor = Cursors.SizeNS;
                 else if (!resX || !resY) scrollViewer.Cursor = Cursors.Arrow; 
-                if (e.LeftButton == MouseButtonState.Pressed && isPaint )
-                {
-
-
+                if (e.LeftButton == MouseButtonState.Pressed && isPaint)
+                { 
                     if (resizeX)
                     {
-                        shape.Width = resizeOnWidth + (e.GetPosition(canvas).X - pointToDrag.X);
-                        shapeToDrag.Width = resizeOnWidth + (e.GetPosition(canvas).X - pointToDrag.X) + 4;
+                        if (shape != null) shape.Width = resizeOnWidth + (e.GetPosition(canvas).X - pointToDrag.X); 
+                        if (richTextBox != null) richTextBox.Width = resizeOnWidth + (e.GetPosition(canvas).X - pointToDrag.X);
                     }
                     if (resizeY)
                     {
-                        shape.Height = resizeOnHeight + (e.GetPosition(canvas).Y - pointToDrag.Y);
-                        shapeToDrag.Height = resizeOnHeight + (e.GetPosition(canvas).Y - pointToDrag.Y) + 4;
+                        if (shape != null) shape.Height = resizeOnHeight + (e.GetPosition(canvas).Y - pointToDrag.Y); 
+                        if (richTextBox != null) richTextBox.Height = resizeOnHeight + (e.GetPosition(canvas).Y - pointToDrag.Y);
                     }
                     if (!resizeX && !resizeY)
                     {
                         double x = prev.X + (e.GetPosition(canvas).X - pointToDrag.X);
                         double y = prev.Y + (e.GetPosition(canvas).Y - pointToDrag.Y); 
-                        shapeToDrag.SetValue(Canvas.LeftProperty, x);
-                        shapeToDrag.SetValue(Canvas.TopProperty, y);
-                        shape.SetValue(Canvas.LeftProperty, x);
-                        shape.SetValue(Canvas.TopProperty, y);
+                        if (shape != null) shape.SetValue(Canvas.LeftProperty, x);
+                        if (shape != null) shape.SetValue(Canvas.TopProperty, y);
+                        if (richTextBox != null) richTextBox.SetValue(Canvas.LeftProperty, x);
+                        if (richTextBox != null) richTextBox.SetValue(Canvas.TopProperty, y);
                     }
+                } else if (e.RightButton == MouseButtonState.Pressed) {
+                    if (richTextBox != null) richTextBox.RenderTransform = new RotateTransform(e.GetPosition(canvas).Y - pointToDrag.Y, richTextBox.Width/2, richTextBox.Height/2);
+                    if (shape != null) shape.RenderTransform = new RotateTransform(e.GetPosition(canvas).Y - pointToDrag.Y, shape.Width / 2, shape.Height / 2);
                 }
+                
             }
             catch (ArgumentException ex)
             {
@@ -497,7 +532,7 @@ namespace Media_Editor_1._0._2
             {
                 isPaint = false;
                 resizeX = false;
-                resizeY = false;
+                resizeY = false; 
 
             }
             catch (ArgumentException ex)
@@ -549,8 +584,7 @@ namespace Media_Editor_1._0._2
                 brushCanvas.Children.Add(line);
             }
             else
-            {
-                lbl.Content = e.GetPosition(canvas); 
+            { 
                 canvas.Children.Remove(shape);
                 shape = new Ellipse
                 {
@@ -686,6 +720,9 @@ namespace Media_Editor_1._0._2
             {
             }
         }
+
+        
+
         private void rectButtonUp(object sender, MouseEventArgs e)
         {
             try
@@ -833,12 +870,15 @@ namespace Media_Editor_1._0._2
                 text.Background = new SolidColorBrush(Colors.Transparent);
                 text.BorderBrush = new SolidColorBrush(Colors.Transparent);
                 text.Document.TextAlignment = TextAlignment.Center;
-                text.Width =  120;
-                text.Height =   40;
+                text.Width =  200;
+                text.Height =   100; 
                 Canvas.SetLeft(text, prev.X - text.Width / 2);
                 Canvas.SetTop(text, prev.Y - text.Height / 2); 
                 text.SelectionChanged += new RoutedEventHandler(setTextSetting);
                 text.MouseMove += new MouseEventHandler(isTransform); 
+                text.PreviewMouseDown += new MouseButtonEventHandler(buttonPointMouseDown);
+                text.PreviewMouseMove += new MouseEventHandler(buttonPointMouseMove);
+                text.PreviewMouseUp += new MouseButtonEventHandler(buttonPointMouseUp);
                 setTextSetting(text, e);
                 canvas.Children.Add(text);
             }
@@ -848,16 +888,14 @@ namespace Media_Editor_1._0._2
             try
             {
                 RichTextBox text = (RichTextBox)sender;
-                buttonClickEvent(sender, null);
-                TextRange textRange = new TextRange(text.Document.ContentStart, text.Document.ContentEnd); 
-                text.Width = ((textRange.Text.Length + 3) * (Double)textFontSizeBox.SelectedItem)/1.8;
-                text.Height = ((textRange.Text.Length+4) * (Double)textFontSizeBox.SelectedItem) / 5;
+                buttonClickEvent(sender, null); 
+                TextRange textRange = new TextRange(text.Document.ContentStart, text.Document.ContentEnd);  
                 text.Opacity = opacitiValue;
                 text.FontFamily = (FontFamily)textFontBox.SelectedItem;
-                text.FontSize = (Double)textFontSizeBox.SelectedItem;
+                text.FontSize =  Convert.ToDouble(fontSize.Text);
                 text.FontStyle = (isItalic.IsChecked.Value) ? FontStyles.Italic : FontStyles.Normal;
                 text.FontWeight = (isBold.IsChecked.Value) ? FontWeights.Bold : FontWeights.Normal; 
-                text.Foreground = new SolidColorBrush(colorPickerFont.SelectedColor.Value);
+                text.Foreground = new SolidColorBrush(colorPickerFont.SelectedColor.Value);  
             }
             catch (Exception ex)
             {
@@ -868,16 +906,26 @@ namespace Media_Editor_1._0._2
         private void isTransform(object sender, RoutedEventArgs e)
         {
             try
-            {
+            { 
                 RichTextBox text = (RichTextBox)sender;
 
                 if (isTransformation.IsChecked.Value)
                 {
-                    text.IsReadOnly = true;
+                      text.IsReadOnly = true;
+                    Point position = Mouse.GetPosition(text);
+                    bool resX = false, resY = false;
+                    if (position.X >= text.Width - 30 && position.X <= text.Width) resX = true;
+                    if (position.Y >= text.Height - 30 && position.Y <= text.Height) resY = true;
+                    if (resX && resY) text.Cursor = Cursors.SizeNWSE;
+                    else if (resX) text.Cursor = Cursors.SizeWE;
+                    else if (resY) text.Cursor = Cursors.SizeNS;
+                    else if (!resX || !resY) text.Cursor = Cursors.IBeam;
+
                 }
                 else
-                {
-                    text.IsReadOnly = false;
+                {    
+                    text.Cursor = Cursors.IBeam;
+                    text.IsReadOnly = false; 
                 }
 
             }

@@ -206,32 +206,31 @@
         <Button Name="colorFullButton" Content="Заливка"  Style="{DynamicResource DefaultButtonStyle }"  HorizontalAlignment="Left" Margin="4,158,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="colorFullButton_Click"/>
         <Button Name="brushButton" Content="Кисть" Style="{DynamicResource DefaultButtonStyle }"  Background="{DynamicResource menuItemBrush}" HorizontalAlignment="Left" Margin="4,109,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="brushButton_Click"/>
         <ScrollViewer x:Name="scrollViewer" Margin="53,60,201,67"   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MouseWheel="scrollViewer_MouseWheel" Background="{DynamicResource backPhoto}" MouseDown="scroll_MouseDown" MouseMove="scroll_MouseMove" MouseUp="scroll_MouseUp">
-            <Canvas x:Name="canvas" Height="414" Width="662" ClipToBounds="True" MouseDown="canvas_MouseDown" MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp">
-                <Canvas.Background>
-                    <ImageBrush ImageSource="bmp.bmp" Stretch="Uniform"/>
-                </Canvas.Background>
+            <Canvas x:Name="canvas" Height="400" Width="700" Background="White" ClipToBounds="True" MouseDown="canvas_MouseDown"  MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp">
+                    
             </Canvas>
         </ScrollViewer>
-        <Label Name="lbl" Content="Label" HorizontalAlignment="Left" Margin="48,0,0,15" Height="26" VerticalAlignment="Bottom"/>
         <TextBox Name="brushSize" HorizontalAlignment="Left" Margin="89,28,0,0" TextWrapping="Wrap" Text="10" Width="40" PreviewTextInput="brushSize_PreviewTextInput" Height="23" VerticalAlignment="Top" TextAlignment="Center" FontSize="14" VerticalScrollBarVisibility="Disabled" MouseWheel="brushSize_MouseWheel"/>
+        <TextBox Name="fontSize" Height="22" Margin="0,72,19,0" TextWrapping="Wrap" Text="24" VerticalAlignment="Top" HorizontalAlignment="Right" Width="101" PreviewTextInput="fontSize_PreviewTextInput" MouseWheel="fontSize_MouseWheel" />
         <Label Content="Размер кисти"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="0,25,0,0" VerticalAlignment="Top"/>
         <Label Content="Цвет"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="158,25,0,0" VerticalAlignment="Top"/>
         <Button x:Name="rectButton" Content="Прямоуг"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,207,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="rectButton_Click"  />
-        <Slider x:Name="sliderZoom" ValueChanged="Slider_ValueChanged" Minimum="0" Maximum="1000" Value="101" BorderBrush="{x:Null}" Foreground="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="308" Height="20" VerticalAlignment="Bottom" SmallChange="50" Margin="0,0,64,15" TickFrequency="50" LargeChange="50" Delay="0" Interval="10"/>
+        <Slider x:Name="sliderZoom" ValueChanged="Slider_ValueChanged" Minimum="0" Maximum="1000" Value="101" BorderBrush="{x:Null}" Foreground="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="308" Height="20" VerticalAlignment="Bottom" SmallChange="50" Margin="0,0,73,10" TickFrequency="50" LargeChange="50" Delay="0" Interval="10"/>
         <Button x:Name="deleteButton" Content="Удалени"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,403,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="deleteButton_Click"  />
-        <Label Name="labelOpacity"  Foreground="{DynamicResource menuItemForeground}" Content="100%" HorizontalAlignment="Left" Margin="659,28,0,0" VerticalAlignment="Top"/>
+        <Label Name="labelOpacity"  Foreground="{DynamicResource menuItemForeground}" Content="100 %" HorizontalAlignment="Left" Margin="659,28,0,0" VerticalAlignment="Top"/>
         <Button x:Name="ellipsButton" Content="Еллипс"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,256,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="ellipsButton_Click"  />
         <Button x:Name="lineButton" Content="Линия"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,305,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="lineButton_Click"  />
         <Button x:Name="textButton" Content="Текст"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,354,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="textButton_Click" MouseDown="buttonTextMouseDown"/>
         <ComboBox Name="textFontBox" Margin="0,109,19,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="101"/>
-        <ComboBox Name="textFontSizeBox" Margin="0,72,19,0" VerticalAlignment="Top" RenderTransformOrigin="0.54,4.818" HorizontalAlignment="Right" Width="101"/>
         <Label Content="Шрифт" Foreground="{DynamicResource menuItemForeground}" Margin="0,105,132,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="49" RenderTransformOrigin="0.449,1.269"/>
         <Label Content="Размер" Foreground="{DynamicResource menuItemForeground}" Margin="0,68,131,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50"/>
         <wpfx:ColorPicker x:Name="colorPickerFont"   SelectedColor="Black" Margin= "0,178,19,0" Height="23" VerticalAlignment="Top" FontSize="14" DisplayColorAndName="True" ColorMode="ColorCanvas" AvailableColorsSortingMode="HueSaturationBrightness" HorizontalAlignment="Right" Width="157" />
         <Label Content="Цвет шрифта" Foreground="{DynamicResource menuItemForeground}" Margin="0,147,64,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="117"/>
         <CheckBox Name="isBold" Content="Жирный" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Right" Margin="0,222,73,0" VerticalAlignment="Top" Width="103"/>
         <CheckBox Name="isItalic" Content="Курсив" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Right" Margin="0,242,73,0" VerticalAlignment="Top" Width="103"/>
-        <CheckBox x:Name="isTransformation" Content="Трансформация" Foreground="{DynamicResource menuItemForeground}" Margin="0,293,58,0" VerticalAlignment="Top" Checked="isTransformation_Checked" Unchecked="isTransformation_Unchecked" HorizontalAlignment="Right" Width="118"/>
+        <CheckBox x:Name="isTransformation" Content="Трансформация" Foreground="{DynamicResource menuItemForeground}" Margin="719,32,0,0" VerticalAlignment="Top" Checked="isTransformation_Checked" Unchecked="isTransformation_Unchecked" HorizontalAlignment="Left" Width="118"/>
+        <Label Content="Увеличение" Foreground="{DynamicResource menuItemForeground}" Margin="0,0,307,35" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="74"/>
+        <Label Name="labelZoom" Content="100 %" Foreground="{DynamicResource menuItemForeground}" Margin="0,0,386,10" HorizontalAlignment="Right" Width="53" Height="26" VerticalAlignment="Bottom"/>
 
 
     </Grid>
