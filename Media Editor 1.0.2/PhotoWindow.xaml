@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Media_Editor_1._0._2" 
         xmlns:wpfx="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d" 
-        Title="MediaEditor PhotoWindow" Height="600" Width="1000" Background="#FF686565" WindowState="Maximized" Foreground="#FF535353">
+        Title="MediaEditor PhotoWindow" Height="600" Width="1000" Background="#FF686565" WindowState="Maximized" Foreground="#FF535353" MinWidth="600" MinHeight="400" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True">
 
     <Window.Resources>
         <SolidColorBrush x:Key="menuItemBrush"
@@ -186,6 +186,9 @@
     </Window.Resources>
 
     <Grid Background="#525358">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <Menu Height="20" VerticalAlignment="Top"  Style="{DynamicResource menuItem}"  Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}"  >
             <MenuItem Header="Файл"     >
                 <MenuItem Header="Открыть" Click="MenuItem_Click"  Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}"   />
@@ -196,28 +199,39 @@
             <MenuItem Header="Редактировать"   Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}" ></MenuItem>
             <MenuItem Header="Справка"   Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}" ></MenuItem>
         </Menu>
-        <wpfx:ColorPicker Name="colorPickerBrush"   SelectedColor="Black" DisplayColorAndName="True" Margin= "203,32,0,0" HorizontalAlignment="Left" Width="163" Height="23" VerticalAlignment="Top" FontSize="14" />
-        <Slider Name="sliderOpacity" HorizontalAlignment="Left" Margin="495,32,0,0" VerticalAlignment="Top" Width="163" Height="23" Maximum="100" Value="100" TickPlacement="TopLeft" SmallChange="10" TickFrequency="10" ValueChanged="liderOpacity_ValueChanged" LargeChange="10" Cursor="No"/>
-        <Label Content="Прозрачность" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="402,29,0,0" VerticalAlignment="Top"/>
+        <wpfx:ColorPicker Name="colorPickerBrush"   SelectedColor="Black" Margin= "199,28,0,0" HorizontalAlignment="Left" Width="163" Height="23" VerticalAlignment="Top" FontSize="14" DisplayColorAndName="True" ColorMode="ColorCanvas" AvailableColorsSortingMode="HueSaturationBrightness" />
+        <Slider Name="sliderOpacity" HorizontalAlignment="Left" Margin="496,28,0,0" VerticalAlignment="Top" Width="163" Height="23" Maximum="100" Value="100" TickPlacement="TopLeft" SmallChange="5" TickFrequency="10" ValueChanged="sliderOpacity_ValueChanged" Cursor="Arrow" Delay="0" LargeChange="5" Interval="10"/>
+        <Label Content="Прозрачность" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="403,25,0,0" VerticalAlignment="Top"/>
         <Button Name="pointButton" Style="{DynamicResource DefaultButtonStyle }"   HorizontalAlignment="Left" Margin="4,60,0,0" VerticalAlignment="Top" Width="44" Height="44"  Content="Указатель" Click="pointButton_Click"/>
         <Button Name="colorFullButton" Content="Заливка"  Style="{DynamicResource DefaultButtonStyle }"  HorizontalAlignment="Left" Margin="4,158,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="colorFullButton_Click"/>
         <Button Name="brushButton" Content="Кисть" Style="{DynamicResource DefaultButtonStyle }"  Background="{DynamicResource menuItemBrush}" HorizontalAlignment="Left" Margin="4,109,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="brushButton_Click"/>
-        <ScrollViewer x:Name="scrollViewer" Margin="53,60,64,67"   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MouseWheel="scrollViewer_MouseWheel" Background="{DynamicResource backPhoto}">
-            <Canvas x:Name="canvas" Height="414" Width="662" MouseDown="canvas_MouseDown" MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp">
+        <ScrollViewer x:Name="scrollViewer" Margin="53,60,201,67"   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MouseWheel="scrollViewer_MouseWheel" Background="{DynamicResource backPhoto}" MouseDown="scroll_MouseDown" MouseMove="scroll_MouseMove" MouseUp="scroll_MouseUp">
+            <Canvas x:Name="canvas" Height="414" Width="662" ClipToBounds="True" MouseDown="canvas_MouseDown" MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp">
                 <Canvas.Background>
                     <ImageBrush ImageSource="bmp.bmp" Stretch="Uniform"/>
                 </Canvas.Background>
             </Canvas>
         </ScrollViewer>
         <Label Name="lbl" Content="Label" HorizontalAlignment="Left" Margin="48,0,0,15" Height="26" VerticalAlignment="Bottom"/>
-        <TextBox Name="brushSize" HorizontalAlignment="Left" Margin="93,32,0,0" TextWrapping="Wrap" Text="10" Width="40" PreviewTextInput="brushSize_PreviewTextInput" Height="23" VerticalAlignment="Top" TextAlignment="Center" FontSize="14" VerticalScrollBarVisibility="Disabled" MouseWheel="brushSize_MouseWheel"/>
-        <Label Content="Размер кисти"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="4,29,0,0" VerticalAlignment="Top"/>
-        <Label Content="Цвет"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="162,29,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="brushSize" HorizontalAlignment="Left" Margin="89,28,0,0" TextWrapping="Wrap" Text="10" Width="40" PreviewTextInput="brushSize_PreviewTextInput" Height="23" VerticalAlignment="Top" TextAlignment="Center" FontSize="14" VerticalScrollBarVisibility="Disabled" MouseWheel="brushSize_MouseWheel"/>
+        <Label Content="Размер кисти"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="0,25,0,0" VerticalAlignment="Top"/>
+        <Label Content="Цвет"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="158,25,0,0" VerticalAlignment="Top"/>
         <Button x:Name="rectButton" Content="Прямоуг"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,207,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="rectButton_Click"  />
-        <Slider x:Name="sliderZoom" ValueChanged="Slider_ValueChanged" Minimum="0" Maximum="1000" Value="101" BorderBrush="{x:Null}" Foreground="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="308" Height="20" VerticalAlignment="Bottom" SmallChange="50" Margin="0,0,64,15" TickFrequency="50" LargeChange="50"/>
-        <Button x:Name="deleteButton" Content="Удалени"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,305,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="deleteButton_Click"  />
-        <Label Name="labelOpacity"  Foreground="{DynamicResource menuItemForeground}" Content="100%" HorizontalAlignment="Left" Margin="663,32,0,0" VerticalAlignment="Top"/>
+        <Slider x:Name="sliderZoom" ValueChanged="Slider_ValueChanged" Minimum="0" Maximum="1000" Value="101" BorderBrush="{x:Null}" Foreground="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="308" Height="20" VerticalAlignment="Bottom" SmallChange="50" Margin="0,0,64,15" TickFrequency="50" LargeChange="50" Delay="0" Interval="10"/>
+        <Button x:Name="deleteButton" Content="Удалени"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,403,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="deleteButton_Click"  />
+        <Label Name="labelOpacity"  Foreground="{DynamicResource menuItemForeground}" Content="100%" HorizontalAlignment="Left" Margin="659,28,0,0" VerticalAlignment="Top"/>
         <Button x:Name="ellipsButton" Content="Еллипс"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,256,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="ellipsButton_Click"  />
+        <Button x:Name="lineButton" Content="Линия"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,305,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="lineButton_Click"  />
+        <Button x:Name="textButton" Content="Текст"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,354,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="textButton_Click" MouseDown="buttonTextMouseDown"/>
+        <ComboBox Name="textFontBox" Margin="0,109,19,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="101"/>
+        <ComboBox Name="textFontSizeBox" Margin="0,72,19,0" VerticalAlignment="Top" RenderTransformOrigin="0.54,4.818" HorizontalAlignment="Right" Width="101"/>
+        <Label Content="Шрифт" Foreground="{DynamicResource menuItemForeground}" Margin="0,105,132,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="49" RenderTransformOrigin="0.449,1.269"/>
+        <Label Content="Размер" Foreground="{DynamicResource menuItemForeground}" Margin="0,68,131,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50"/>
+        <wpfx:ColorPicker x:Name="colorPickerFont"   SelectedColor="Black" Margin= "0,178,19,0" Height="23" VerticalAlignment="Top" FontSize="14" DisplayColorAndName="True" ColorMode="ColorCanvas" AvailableColorsSortingMode="HueSaturationBrightness" HorizontalAlignment="Right" Width="157" />
+        <Label Content="Цвет шрифта" Foreground="{DynamicResource menuItemForeground}" Margin="0,147,64,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="117"/>
+        <CheckBox Name="isBold" Content="Жирный" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Right" Margin="0,222,73,0" VerticalAlignment="Top" Width="103"/>
+        <CheckBox Name="isItalic" Content="Курсив" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Right" Margin="0,242,73,0" VerticalAlignment="Top" Width="103"/>
+        <CheckBox x:Name="isTransformation" Content="Трансформация" Foreground="{DynamicResource menuItemForeground}" Margin="0,293,58,0" VerticalAlignment="Top" Checked="isTransformation_Checked" Unchecked="isTransformation_Unchecked" HorizontalAlignment="Right" Width="118"/>
 
 
     </Grid>
