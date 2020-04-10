@@ -192,12 +192,16 @@
         <Menu Height="20" VerticalAlignment="Top"  Style="{DynamicResource menuItem}"  Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}"  >
             <MenuItem Header="Файл"     >
                 <MenuItem Header="Открыть" Click="MenuItem_Click"  Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}"   />
-                <MenuItem Header="Сохранить"   Foreground="{DynamicResource menuItemForeground}"  Background="{DynamicResource menuItemBrush}" Click="MenuItem_Click_2"  ></MenuItem>
+                <MenuItem Header="Сохранить"   Foreground="{DynamicResource menuItemForeground}"  Background="{DynamicResource menuItemBrush}" Click="MenuItem_Click_3"    ></MenuItem>
+                <MenuItem Header="Сохранить как..."   Foreground="{DynamicResource menuItemForeground}"  Background="{DynamicResource menuItemBrush}" Click="MenuItem_Click_2"  ></MenuItem>
                 <Separator></Separator>
                 <MenuItem Header="Выход" Click="MenuItem_Click_1"   Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}"  ></MenuItem>
             </MenuItem>
-            <MenuItem Header="Редактировать"   Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}" ></MenuItem>
-            <MenuItem Header="Справка"   Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}" ></MenuItem>
+            <MenuItem Header="Правка"   Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}" >
+                <MenuItem Header="Очистить поле" Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}" Click="MenuItem_Click_4"   />
+                <MenuItem Header="Добавить изображение" Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}" Click="MenuItem_Click_5"   />
+
+            </MenuItem>
         </Menu>
         <wpfx:ColorPicker Name="colorPickerBrush"   SelectedColor="Black" Margin= "199,28,0,0" HorizontalAlignment="Left" Width="163" Height="23" VerticalAlignment="Top" FontSize="14" DisplayColorAndName="True" ColorMode="ColorCanvas" AvailableColorsSortingMode="HueSaturationBrightness" />
         <Slider Name="sliderOpacity" HorizontalAlignment="Left" Margin="496,28,0,0" VerticalAlignment="Top" Width="163" Height="23" Maximum="100" Value="100" TickPlacement="TopLeft" SmallChange="5" TickFrequency="10" ValueChanged="sliderOpacity_ValueChanged" Cursor="Arrow" Delay="0" LargeChange="5" Interval="10"/>
@@ -207,7 +211,7 @@
         <Button Name="brushButton" Content="Кисть" Style="{DynamicResource DefaultButtonStyle }"  Background="{DynamicResource menuItemBrush}" HorizontalAlignment="Left" Margin="4,109,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="brushButton_Click"/>
         <ScrollViewer x:Name="scrollViewer" Margin="53,60,201,67"   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MouseWheel="scrollViewer_MouseWheel" Background="{DynamicResource backPhoto}" MouseDown="scroll_MouseDown" MouseMove="scroll_MouseMove" MouseUp="scroll_MouseUp">
             <Canvas x:Name="canvas" Height="400" Width="700" Background="White" ClipToBounds="True" MouseDown="canvas_MouseDown"  MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp">
-                    
+
             </Canvas>
         </ScrollViewer>
         <TextBox Name="brushSize" HorizontalAlignment="Left" Margin="89,28,0,0" TextWrapping="Wrap" Text="10" Width="40" PreviewTextInput="brushSize_PreviewTextInput" Height="23" VerticalAlignment="Top" TextAlignment="Center" FontSize="14" VerticalScrollBarVisibility="Disabled" MouseWheel="brushSize_MouseWheel"/>
@@ -215,7 +219,7 @@
         <Label Content="Размер кисти"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="0,25,0,0" VerticalAlignment="Top"/>
         <Label Content="Цвет"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="158,25,0,0" VerticalAlignment="Top"/>
         <Button x:Name="rectButton" Content="Прямоуг"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,207,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="rectButton_Click"  />
-        <Slider x:Name="sliderZoom" ValueChanged="Slider_ValueChanged" Minimum="0" Maximum="1000" Value="101" BorderBrush="{x:Null}" Foreground="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="308" Height="20" VerticalAlignment="Bottom" SmallChange="50" Margin="0,0,73,10" TickFrequency="50" LargeChange="50" Delay="0" Interval="10"/>
+        <Slider x:Name="sliderZoom" ValueChanged="Slider_ValueChanged" Minimum="0" Maximum="1000" Value="100" BorderBrush="{x:Null}" Foreground="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="308" Height="20" VerticalAlignment="Bottom" SmallChange="50" Margin="0,0,71,3" TickFrequency="50" LargeChange="50" Delay="0" Interval="10"/>
         <Button x:Name="deleteButton" Content="Удалени"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,403,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="deleteButton_Click"  />
         <Label Name="labelOpacity"  Foreground="{DynamicResource menuItemForeground}" Content="100 %" HorizontalAlignment="Left" Margin="659,28,0,0" VerticalAlignment="Top"/>
         <Button x:Name="ellipsButton" Content="Еллипс"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,256,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="ellipsButton_Click"  />
@@ -229,8 +233,20 @@
         <CheckBox Name="isBold" Content="Жирный" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Right" Margin="0,222,73,0" VerticalAlignment="Top" Width="103"/>
         <CheckBox Name="isItalic" Content="Курсив" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Right" Margin="0,242,73,0" VerticalAlignment="Top" Width="103"/>
         <CheckBox x:Name="isTransformation" Content="Трансформация" Foreground="{DynamicResource menuItemForeground}" Margin="719,32,0,0" VerticalAlignment="Top" Checked="isTransformation_Checked" Unchecked="isTransformation_Unchecked" HorizontalAlignment="Left" Width="118"/>
-        <Label Content="Увеличение" Foreground="{DynamicResource menuItemForeground}" Margin="0,0,307,35" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="74"/>
-        <Label Name="labelZoom" Content="100 %" Foreground="{DynamicResource menuItemForeground}" Margin="0,0,386,10" HorizontalAlignment="Right" Width="53" Height="26" VerticalAlignment="Bottom"/>
+        <Label Content="Увеличение" Foreground="{DynamicResource menuItemForeground}" Margin="0,0,373,0" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="96" Height="26"/>
+        <Label Name="labelZoom" Content="100 %" Foreground="{DynamicResource menuItemForeground}" Margin="0,0,19,0" HorizontalAlignment="Right" Width="53" Height="26" VerticalAlignment="Bottom"/>
+        <Separator Margin="0,0,0,23" Height="7" VerticalAlignment="Bottom"/>
+        <Label Name="lblName" Content="Размер кисти"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="10,0,0,0" Height="26" VerticalAlignment="Bottom"/>
+        <Separator Margin="0,0,463,3" RenderTransformOrigin="0.5,0.5" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="26">
+            <Separator.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Separator.RenderTransform>
+        </Separator>
 
 
     </Grid>
