@@ -1,43 +1,42 @@
 ﻿using NAudio.Wave;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace Media_Editor_1._0._2
 {
     public class StreamOfWaves
     {
-        double position = 0;
-        List<StreamWave> waves = new List<StreamWave>(); 
+        double pos = 0;
+        List<StreamWave> waves = new List<StreamWave>();
         private WaveFormRenderer waveFormRenderer;
         private WaveFormRendererSettings settings;
         private PeakProvider provider;
-         DispatcherTimer timer = new  DispatcherTimer();
-        public Label label;
+        DispatcherTimer timer = new DispatcherTimer(); 
 
 
-        public StreamOfWaves() {
+        public StreamOfWaves()
+        {
             settings = new WaveFormRendererSettings();
             provider = new MaxPeakProvider();
             settings.TopHeight = 50;
             settings.BottomHeight = 50;
             settings.BackgroundColor = System.Drawing.Color.Transparent;
-            waveFormRenderer = new WaveFormRenderer(); 
+            waveFormRenderer = new WaveFormRenderer();
         }
-        public System.Windows.Shapes.Rectangle Add(BlockAlignReductionStream stream, WaveOutEvent output, AudioFileReader streamTrek) {
-             
-            waves.Add(new StreamWave( stream, output));
-            settings.Width = Convert.ToInt32(streamTrek.TotalTime.TotalSeconds * 30);
+        public System.Windows.Shapes.Rectangle Add(BlockAlignReductionStream stream, WaveOutEvent output, AudioFileReader streamTrek)
+        {
+
+            waves.Add(new StreamWave(stream, output));
+            settings.Width = Convert.ToInt32(streamTrek.TotalTime.TotalSeconds * 100);
             System.Windows.Shapes.Rectangle waveRect = RenderThreadFunc(streamTrek, provider, settings);
-            waveRect.Width = streamTrek.TotalTime.TotalSeconds*8;
+            waveRect.Width = streamTrek.TotalTime.TotalMilliseconds/80;
             return waveRect;
         }
         private System.Windows.Shapes.Rectangle RenderThreadFunc(AudioFileReader streamTrek, PeakProvider peakProvider, WaveFormRendererSettings settings)
@@ -71,7 +70,8 @@ namespace Media_Editor_1._0._2
             }
             return null;
         }
-        public void Remove(int index) {
+        public void Remove(int index)
+        {
             waves.RemoveAt(index);
         }
         public void Dispose()
@@ -99,20 +99,38 @@ namespace Media_Editor_1._0._2
                     }
             }
         }
-        public void Play() { 
-         timer.Tick += new EventHandler(plpl);
-           timer.Interval = new TimeSpan(0, 0, 1);
-           timer.Start(); 
+        public void Play()
+        {
+
+            foreach (var wave in waves)
+            {
+                wave.Play();
+            }
+            //   timer.Tick += new EventHandler(plpl);
+            //   timer.Interval = new TimeSpan(0, 0, 1);
+            //   timer.Start();
         }
 
         public void plpl(object sender, EventArgs e)
-        {  
+        {
+
         }
 
         public void Stop()
-        { 
-            timer.Stop();
+        {
+            foreach (var wave in waves)
+            {
+                wave.Pause();
+            }
+
+            //    timer.Stop();
         }
+
+        public void ChangePos(int index, double pos)
+        {
+            waves[index].SetPos(pos);
+        }
+
 
 
     }

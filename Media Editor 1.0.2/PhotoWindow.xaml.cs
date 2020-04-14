@@ -31,17 +31,24 @@ namespace Media_Editor_1._0._2
 
         public PhotoWindow()
         {
-            InitializeComponent();
-            onFirst = canvas.Height;
-            canvas.LayoutTransform = st;
-            lblName.Content = canvas.Height + " x " + canvas.Width;
-            shape = new Line();
-            zoomKoeficient = 550 / canvas.Height;
-            sliderZoom.Value++;
-            sliderZoom.Value--;
-            textFontBox.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
-            textFontBox.SelectedIndex = 0;
-            buttonSelected(pointButton);
+            try
+            {
+                InitializeComponent();
+                onFirst = canvas.Height;
+                canvas.LayoutTransform = st;
+                lblName.Content = canvas.Height + " x " + canvas.Width;
+                shape = new Line();
+                zoomKoeficient = 550 / canvas.Height;
+                sliderZoom.Value++;
+                sliderZoom.Value--;
+                textFontBox.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
+                textFontBox.SelectedIndex = 0;
+                buttonSelected(pointButton);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
         //Открытие файла
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -96,7 +103,7 @@ namespace Media_Editor_1._0._2
                     var rtb = new RenderTargetBitmap((int)canvas.Width, (int)canvas.Height, 96d, 96d, PixelFormats.Default);
                     canvas.Measure(new Size((int)canvas.Width, (int)canvas.Height));
                     canvas.Arrange(new Rect(new Size((int)canvas.Width, (int)canvas.Height)));
-                    rtb.Render(canvas); 
+                    rtb.Render(canvas);
                     PngBitmapEncoder BufferSave = new PngBitmapEncoder();
                     BufferSave.Frames.Add((BitmapFrame.Create(rtb)));
                     if (File.Exists(save.FileName)) File.Delete(save.FileName);

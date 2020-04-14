@@ -1,12 +1,15 @@
 ﻿using NAudio.Wave;
+using System;
+using System.Windows.Threading;
 
 namespace Media_Editor_1._0._2
 {
     public class StreamWave
     {
         BlockAlignReductionStream stream;
-        WaveOutEvent output;
-        double position = 0;
+        WaveOutEvent output; 
+        DispatcherTimer timer = new DispatcherTimer();
+        double pos = 0, posOnTrek = 0,timeKoef = 0;
 
         public StreamWave(BlockAlignReductionStream stream, WaveOutEvent output)
         {
@@ -24,15 +27,33 @@ namespace Media_Editor_1._0._2
             stream.Position = position;
         }
 
-        public void Play()
+        public double GetPos()
         {
-            output.Play();
+            return pos;
         }
 
+        public void SetPos(double pos)
+        {
+            this.pos = pos; 
+        }
+
+        public void Play()
+        {
+             timer.Tick += new EventHandler(plpl);
+            timer.Interval = new TimeSpan(0, 0, 1);
+            timer.Start(); 
+        }
+        public void plpl(object sender, EventArgs e)
+        {
+            posOnTrek++;
+            if (posOnTrek >= pos) {
+                if (output.PlaybackState != PlaybackState.Playing) output.Play(); 
+            } 
+        }
         public void Pause()
         {
-            output.Pause();
-
+            timer.Stop();
+            output.Pause(); 
         }
  
 
