@@ -23,7 +23,7 @@ namespace Media_Editor_1._0._2
         public MainWindow()
         {
             InitializeComponent();
-            Button_Click(null,null);
+           Button_Click_1(null, null);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -33,6 +33,11 @@ namespace Media_Editor_1._0._2
             this.Close(); 
         }
 
-        
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            AudioWindow audioWindow = new AudioWindow();
+            audioWindow.Show();
+            this.Close();
+        }
     }
 }

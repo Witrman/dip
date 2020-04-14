@@ -18,8 +18,8 @@ namespace Media_Editor_1._0._2
     public partial class PhotoWindow : Window
     {
         private double resizeOnWidth, resizeOnHeight, onFirst, zoomKoeficient, brushSizeDigit, opacitiValue = 1;
-        private SolidColorBrush colorButtonSelected = new SolidColorBrush(Color.FromRgb(42, 42, 42)),
-            colorButtonNotSelected = new SolidColorBrush(Color.FromRgb(82, 83, 88)),
+        private SolidColorBrush colorButtonSelected = new SolidColorBrush(Color.FromRgb(185, 185, 185)),
+            colorButtonNotSelected = new SolidColorBrush(Color.FromRgb(112, 112, 112)),
             color;
         private String buttonSelectedString = "", file = "";
         private Point prev, pointToDrag;
@@ -512,9 +512,9 @@ namespace Media_Editor_1._0._2
         }
         private void buttonSelected(Button selectButon)
         {
-            if (buttonSelectedString != "") ((Button)this.FindName(buttonSelectedString)).Background = colorButtonNotSelected;
+            if (buttonSelectedString != "") ((Button)this.FindName(buttonSelectedString)).BorderBrush = colorButtonNotSelected;
             cleanShapeCanvas();
-            selectButon.Background = colorButtonSelected;
+            selectButon.BorderBrush = colorButtonSelected;
             buttonSelectedString = selectButon.Name;
             if (isTransformation.IsChecked.Value && buttonSelectedString != "pointButton") isTransformation.IsChecked = false;
         }

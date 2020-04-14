@@ -44,7 +44,7 @@
                                                Placement="Bottom"
                                                IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
                                                PlacementTarget="{Binding ElementName=templateRoot}">
-                                            <Border x:Name="SubMenuBorder" Background="#525358" BorderBrush="#525358"
+                                            <Border x:Name="SubMenuBorder" Background="#525358" BorderBrush="#FF9E9E9E"
                                                     BorderThickness="1" Padding="2">
                                                 <ScrollViewer x:Name="SubMenuScrollViewer"
                                                              Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
@@ -117,7 +117,7 @@
         <SolidColorBrush x:Key="Button.Static.Foreground"
                      Color="#FFD8D8D8" />
         <SolidColorBrush x:Key="Button.MouseOver.Background"
-                     Color="#FF6C6D72" />
+                     Color="Transparent" />
         <SolidColorBrush x:Key="Button.MouseOver.Border"
                      Color="#FFB9B9B9" />
         <SolidColorBrush x:Key="Button.MouseOver.Foreground"
@@ -125,10 +125,10 @@
         <SolidColorBrush x:Key="Button.Pressed.Background"
                      Color="#FFA6A6A6" />
         <SolidColorBrush x:Key="Button.Pressed.Border"
-                     Color="#FFB9B9B9" />
+                     Color="#FFE6E6E6" />
         <SolidColorBrush x:Key="Button.Pressed.Foreground"
                      Color="#FFD8D8D8" />
-        <SolidColorBrush x:Key="Button.Disabled.Background"
+          <SolidColorBrush x:Key="Button.Disabled.Background"
                      Color="#525358" />
         <SolidColorBrush x:Key="Button.Disabled.Border"
                      Color="#FF707070" />
@@ -165,17 +165,14 @@
                             <Trigger Property="IsDefaulted" Value="true">
                                 <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
                             </Trigger>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource Button.MouseOver.Background}" />
+                            <Trigger Property="IsMouseOver" Value="true"> 
                                 <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Button.MouseOver.Border}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="true">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource Button.Pressed.Background}" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Button.Pressed.Border}" />
+                                 <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Button.Pressed.Border}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource Button.Disabled.Background}" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Button.Disabled.Border}" />
+                                 <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Button.Disabled.Border}" />
                                 <Setter TargetName="contentPresenter" Property="TextElement.Foreground" Value="{StaticResource Button.Disabled.Foreground}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -186,45 +183,147 @@
     </Window.Resources>
 
     <Grid Background="#525358">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
         <Menu Height="20" VerticalAlignment="Top"  Style="{DynamicResource menuItem}"  Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}"  >
             <MenuItem Header="Файл"     >
-                <MenuItem Header="Открыть" Click="MenuItem_Click"  Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}"   />
-                <MenuItem Header="Сохранить"   Foreground="{DynamicResource menuItemForeground}"  Background="{DynamicResource menuItemBrush}" Click="MenuItem_Click_3"    ></MenuItem>
-                <MenuItem Header="Сохранить как..."   Foreground="{DynamicResource menuItemForeground}"  Background="{DynamicResource menuItemBrush}" Click="MenuItem_Click_2"  ></MenuItem>
+                <MenuItem Header="Открыть"   Click="MenuItem_Click"  Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}"   />
+                <MenuItem Header="Сохранить"  Click="MenuItem_Click_3"  Foreground="{DynamicResource menuItemForeground}"  Background="{DynamicResource menuItemBrush}"    ></MenuItem>
+                <MenuItem Header="Сохранить как..." Click="MenuItem_Click_2"   Foreground="{DynamicResource menuItemForeground}"  Background="{DynamicResource menuItemBrush}"   ></MenuItem>
                 <Separator></Separator>
                 <MenuItem Header="Выход" Click="MenuItem_Click_1"   Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}"  ></MenuItem>
             </MenuItem>
             <MenuItem Header="Правка"   Foreground="{DynamicResource menuItemForeground}" Background="{DynamicResource menuItemBrush}" >
-                <MenuItem Header="Очистить поле" Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}" Click="MenuItem_Click_4"   />
-                <MenuItem Header="Добавить изображение" Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}" Click="MenuItem_Click_5"   />
+                <MenuItem Header="Очистить поле" Click="MenuItem_Click_4" Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}"    />
+                <MenuItem Header="Добавить изображение" Click="MenuItem_Click_5" Background="{DynamicResource menuItemBrush}"    Foreground="{DynamicResource menuItemForeground}"   />
 
             </MenuItem>
         </Menu>
         <wpfx:ColorPicker Name="colorPickerBrush"   SelectedColor="Black" Margin= "199,28,0,0" HorizontalAlignment="Left" Width="163" Height="23" VerticalAlignment="Top" FontSize="14" DisplayColorAndName="True" ColorMode="ColorCanvas" AvailableColorsSortingMode="HueSaturationBrightness" />
         <Slider Name="sliderOpacity" HorizontalAlignment="Left" Margin="496,28,0,0" VerticalAlignment="Top" Width="163" Height="23" Maximum="100" Value="100" TickPlacement="TopLeft" SmallChange="5" TickFrequency="10" ValueChanged="sliderOpacity_ValueChanged" Cursor="Arrow" Delay="0" LargeChange="5" Interval="10"/>
         <Label Content="Прозрачность" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="403,25,0,0" VerticalAlignment="Top"/>
-        <Button Name="pointButton" Style="{DynamicResource DefaultButtonStyle }"   HorizontalAlignment="Left" Margin="4,60,0,0" VerticalAlignment="Top" Width="44" Height="44"  Content="Указатель" Click="pointButton_Click"/>
-        <Button Name="colorFullButton" Content="Заливка"  Style="{DynamicResource DefaultButtonStyle }"  HorizontalAlignment="Left" Margin="4,158,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="colorFullButton_Click"/>
-        <Button Name="brushButton" Content="Кисть" Style="{DynamicResource DefaultButtonStyle }"  Background="{DynamicResource menuItemBrush}" HorizontalAlignment="Left" Margin="4,109,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="brushButton_Click"/>
+        <Button Name="pointButton" Style="{DynamicResource DefaultButtonStyle }"   HorizontalAlignment="Left" Margin="4,60,0,0" VerticalAlignment="Top" Width="44" Height="44"  Content=" " Click="pointButton_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="selection1_41876.png">
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.75" ScaleY="0.7"/>
+                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </Button.Background>
+        </Button>
+        <Button Name="colorFullButton" Content="Заливка"  Style="{DynamicResource DefaultButtonStyle }"  HorizontalAlignment="Left" Margin="4,158,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="colorFullButton_Click" Foreground="{x:Null}" RenderTransformOrigin="0.5,0.5">
+            <Button.Background>
+                <ImageBrush ImageSource="square280_41878.png">
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleY="0.7" ScaleX="-0.7"/>
+                            <SkewTransform AngleY="0" AngleX="0" CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform Angle="0" CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </Button.Background>
+        </Button>
+        <Button Name="brushButton" Content="Кисть" Style="{DynamicResource DefaultButtonStyle }" HorizontalAlignment="Left" Margin="4,109,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="brushButton_Click" Foreground="{x:Null}">
+            <Button.Background>
+                <ImageBrush ImageSource="painter33_41896.png" >
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.7" ScaleY="0.7"/>
+                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+                
+            </Button.Background>
+        </Button>
         <ScrollViewer x:Name="scrollViewer" Margin="53,60,201,67"   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MouseWheel="scrollViewer_MouseWheel" Background="{DynamicResource backPhoto}" MouseDown="scroll_MouseDown" MouseMove="scroll_MouseMove" MouseUp="scroll_MouseUp">
             <Canvas x:Name="canvas" Height="400" Width="700" Background="White" ClipToBounds="True" MouseDown="canvas_MouseDown"  MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp">
-
-            </Canvas>
+             </Canvas>
         </ScrollViewer>
         <TextBox Name="brushSize" HorizontalAlignment="Left" Margin="89,28,0,0" TextWrapping="Wrap" Text="10" Width="40" PreviewTextInput="brushSize_PreviewTextInput" Height="23" VerticalAlignment="Top" TextAlignment="Center" FontSize="14" VerticalScrollBarVisibility="Disabled" MouseWheel="brushSize_MouseWheel"/>
         <TextBox Name="fontSize" Height="22" Margin="0,72,19,0" TextWrapping="Wrap" Text="24" VerticalAlignment="Top" HorizontalAlignment="Right" Width="101" PreviewTextInput="fontSize_PreviewTextInput" MouseWheel="fontSize_MouseWheel" />
         <Label Content="Размер кисти"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="0,25,0,0" VerticalAlignment="Top"/>
         <Label Content="Цвет"  Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Left" Margin="158,25,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="rectButton" Content="Прямоуг"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,207,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="rectButton_Click"  />
+        <Button x:Name="rectButton" Content="Прямоуг"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,207,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="rectButton_Click" Foreground="{x:Null}"  >
+            <Button.Background>
+                <ImageBrush ImageSource="rect.png">
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.9" ScaleY="0.7"/>
+                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </Button.Background>
+
+        </Button>
         <Slider x:Name="sliderZoom" ValueChanged="Slider_ValueChanged" Minimum="0" Maximum="1000" Value="100" BorderBrush="{x:Null}" Foreground="{x:Null}" Background="{x:Null}" HorizontalAlignment="Right" Width="308" Height="20" VerticalAlignment="Bottom" SmallChange="50" Margin="0,0,71,3" TickFrequency="50" LargeChange="50" Delay="0" Interval="10"/>
-        <Button x:Name="deleteButton" Content="Удалени"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,403,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="deleteButton_Click"  />
+        <Button x:Name="deleteButton" Content="Удалени"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,403,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="deleteButton_Click" Foreground="{x:Null}"  >
+            <Button.Background>
+                <ImageBrush ImageSource="trash.png">
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </Button.Background>
+        </Button>
         <Label Name="labelOpacity"  Foreground="{DynamicResource menuItemForeground}" Content="100 %" HorizontalAlignment="Left" Margin="659,28,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="ellipsButton" Content="Еллипс"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,256,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="ellipsButton_Click"  />
-        <Button x:Name="lineButton" Content="Линия"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,305,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="lineButton_Click"  />
-        <Button x:Name="textButton" Content="Текст"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,354,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="textButton_Click" MouseDown="buttonTextMouseDown"/>
+        <Button x:Name="ellipsButton" Content="Еллипс"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,256,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="ellipsButton_Click" Foreground="{x:Null}"  >
+            <Button.Background>
+                <ImageBrush ImageSource="ellips.png">
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.9" ScaleY="0.8"/>
+                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </Button.Background>
+        </Button>
+        <Button x:Name="lineButton" Content="Линия"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,305,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="lineButton_Click" Foreground="{x:Null}"  >
+            <Button.Background>
+                <ImageBrush ImageSource="graphics-editor71_41881.png">
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.75" ScaleY="0.8"/>
+                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </Button.Background>
+        </Button>
+        <Button x:Name="textButton" Content="Текст"  Style="{DynamicResource DefaultButtonStyle}"  HorizontalAlignment="Left" Margin="4,354,0,0" VerticalAlignment="Top" Width="44" Height="44" Click="textButton_Click" MouseDown="buttonTextMouseDown" Foreground="{x:Null}">
+            <Button.Background>
+                <ImageBrush ImageSource="writing133_41868.png">
+                    <ImageBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.7" ScaleY="0.7"/>
+                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                            <RotateTransform CenterY="0.5" CenterX="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </Button.Background>
+        </Button>
         <ComboBox Name="textFontBox" Margin="0,109,19,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="101"/>
         <Label Content="Шрифт" Foreground="{DynamicResource menuItemForeground}" Margin="0,105,132,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="49" RenderTransformOrigin="0.449,1.269"/>
         <Label Content="Размер" Foreground="{DynamicResource menuItemForeground}" Margin="0,68,131,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50"/>
@@ -232,7 +331,7 @@
         <Label Content="Цвет шрифта" Foreground="{DynamicResource menuItemForeground}" Margin="0,147,64,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="117"/>
         <CheckBox Name="isBold" Content="Жирный" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Right" Margin="0,222,73,0" VerticalAlignment="Top" Width="103"/>
         <CheckBox Name="isItalic" Content="Курсив" Foreground="{DynamicResource menuItemForeground}" HorizontalAlignment="Right" Margin="0,242,73,0" VerticalAlignment="Top" Width="103"/>
-        <CheckBox x:Name="isTransformation" Content="Трансформация" Foreground="{DynamicResource menuItemForeground}" Margin="719,32,0,0" VerticalAlignment="Top" Checked="isTransformation_Checked" Unchecked="isTransformation_Unchecked" HorizontalAlignment="Left" Width="118"/>
+        <CheckBox x:Name="isTransformation" Content="Трансформация " Foreground="{DynamicResource menuItemForeground}" Margin="719,32,0,0" VerticalAlignment="Top" Checked="isTransformation_Checked" Unchecked="isTransformation_Unchecked" HorizontalAlignment="Left" Width="118"/>
         <Label Content="Увеличение" Foreground="{DynamicResource menuItemForeground}" Margin="0,0,373,0" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="96" Height="26"/>
         <Label Name="labelZoom" Content="100 %" Foreground="{DynamicResource menuItemForeground}" Margin="0,0,19,0" HorizontalAlignment="Right" Width="53" Height="26" VerticalAlignment="Bottom"/>
         <Separator Margin="0,0,0,23" Height="7" VerticalAlignment="Bottom"/>

@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:Media_Editor_1._0._2"
         mc:Ignorable="d" 
         Title="MainWindow" Height="400" Width="300" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
-    <Grid Margin="0,0,2,7">
-        <Button Content="Button" HorizontalAlignment="Left" Margin="76,72,0,0" VerticalAlignment="Top" Width="140" Height="38" Click="Button_Click"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="76,153,0,0" VerticalAlignment="Top" Width="140" Height="38"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="76,249,0,0" VerticalAlignment="Top" Width="140" Height="38"/>
+    <Grid Background="#525358">
+        <Button Content="Фото" HorizontalAlignment="Left" Margin="76,72,0,0" VerticalAlignment="Top" Width="140" Height="38" Click="Button_Click" FontSize="20"/>
+        <Button Content="Аудио" HorizontalAlignment="Left" Margin="76,153,0,0" VerticalAlignment="Top" Width="140" Height="38" FontSize="20" Click="Button_Click_1"/>
+        <Button Content="Видео" HorizontalAlignment="Left" Margin="76,249,0,0" VerticalAlignment="Top" Width="140" Height="38" FontSize="20"/>
 
     </Grid>
 </Window>
