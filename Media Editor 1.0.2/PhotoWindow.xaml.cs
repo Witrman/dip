@@ -27,31 +27,50 @@ namespace Media_Editor_1._0._2
         private Shape shape;
         private RichTextBox richTextBox;
         private bool isPaint = false, resizeX = false, resizeY = false;
-        ScaleTransform st = new ScaleTransform();
+        private ScaleTransform st = new ScaleTransform();
+        private Key key;
 
         public PhotoWindow()
         {
             try
             {
                 InitializeComponent();
-                onFirst = canvas.Height;
-                canvas.LayoutTransform = st;
-                lblName.Content = canvas.Height + " x " + canvas.Width;
                 shape = new Line();
-                zoomKoeficient = 550 / canvas.Height;
-                sliderZoom.Value++;
-                sliderZoom.Value--;
                 textFontBox.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
                 textFontBox.SelectedIndex = 0;
-                buttonSelected(pointButton);
+                createCanvas(400, 700);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
+        private void MenuItemCreate(object sender, RoutedEventArgs e)
+        {
+            if (canvas.Children.Count >= 2)
+                if (MessageBox.Show("Вы уверены? Поле рисования не пустое.", "Вы уверены",
+                  MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.No) return;
+            createCanvas(400, 700);
+
+        }
+
+        private void createCanvas(int height, int width)
+        {
+            canvas.Children.Clear();
+            canvas.Height = height;
+            canvas.Width = width;
+            canvas.Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+            onFirst = canvas.Height;
+            lblName.Content = canvas.Height + " x " + canvas.Width;
+            zoomKoeficient = 550 / canvas.Height;
+            canvas.LayoutTransform = st;
+            sliderZoom.Value++;
+            sliderZoom.Value--;
+            buttonSelected(pointButton);
+        }
+
         //Открытие файла
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MenuItemOpen(object sender, RoutedEventArgs e)
         {
 
             OpenFileDialog openFile = new OpenFileDialog();
@@ -59,7 +78,6 @@ namespace Media_Editor_1._0._2
             openFile.Title = "Открытие файла";
             openFile.FilterIndex = 1;
             openFile.RestoreDirectory = true;
-
             if (openFile.ShowDialog() == true)
             {
                 canvas.Children.Clear();
@@ -86,7 +104,7 @@ namespace Media_Editor_1._0._2
         }
 
         //Сохранение  
-        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        private void MenuItemSaveAs(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -98,23 +116,10 @@ namespace Media_Editor_1._0._2
                 save.Title = "Сохранение файла";
                 if (save.ShowDialog() == true)
                 {
-                    st.ScaleX = 1;
-                    st.ScaleY = 1;
-                    var rtb = new RenderTargetBitmap((int)canvas.Width, (int)canvas.Height, 96d, 96d, PixelFormats.Default);
-                    canvas.Measure(new Size((int)canvas.Width, (int)canvas.Height));
-                    canvas.Arrange(new Rect(new Size((int)canvas.Width, (int)canvas.Height)));
-                    rtb.Render(canvas);
-                    PngBitmapEncoder BufferSave = new PngBitmapEncoder();
-                    BufferSave.Frames.Add((BitmapFrame.Create(rtb)));
-                    if (File.Exists(save.FileName)) File.Delete(save.FileName);
-                    using (var fs = File.OpenWrite(save.FileName))
-                    {
-                        BufferSave.Save(fs);
-                    }
+                    saveFile(save.FileName);
+                    file = save.FileName;
                 }
 
-                sliderZoom.Value++;
-                sliderZoom.Value--;
             }
             catch (IOException ex)
             {
@@ -126,40 +131,54 @@ namespace Media_Editor_1._0._2
             }
 
         }
-        private void MenuItem_Click_3(object sender, RoutedEventArgs e)
+        private void MenuItemSave(object sender, RoutedEventArgs e)
         {
-            saveFile(file);
+            if (file != "") saveFile(file);
+            else MenuItemSaveAs(sender, e);
         }
 
         private void saveFile(string fileSave)
         {
-            st.ScaleX = 1;
-            st.ScaleY = 1;
-            var rtb = new RenderTargetBitmap((int)canvas.Width, (int)canvas.Height, 96d, 96d, PixelFormats.Default);
-            canvas.Measure(new Size((int)canvas.Width, (int)canvas.Height));
-            canvas.Arrange(new Rect(new Size((int)canvas.Width, (int)canvas.Height)));
-            rtb.Render(canvas);
-            PngBitmapEncoder BufferSave = new PngBitmapEncoder();
-            BufferSave.Frames.Add((BitmapFrame.Create(rtb)));
-            using (var fs = File.OpenWrite(fileSave))
+            try
             {
-                BufferSave.Save(fs);
-                fs.Dispose();
+                st.ScaleX = 1;
+                st.ScaleY = 1;
+                var rtb = new RenderTargetBitmap((int)canvas.Width, (int)canvas.Height, 96d, 96d, PixelFormats.Default);
+                canvas.Measure(new Size((int)canvas.Width, (int)canvas.Height));
+                canvas.Arrange(new Rect(new Size((int)canvas.Width, (int)canvas.Height)));
+                rtb.Render(canvas);
+                JpegBitmapEncoder BufferSave = new JpegBitmapEncoder();
+                BufferSave.Frames.Add(BitmapFrame.Create(rtb));
+                if (File.Exists(fileSave)) File.Delete(fileSave);
+                using (var fs = File.OpenWrite(fileSave))
+                {
+                    BufferSave.Save(fs);
+                    fs.Dispose();
+                }
+
+                sliderZoom.Value++;
+                sliderZoom.Value--;
             }
-            sliderZoom.Value++;
-            sliderZoom.Value--;
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
-        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        private void Close(object sender, RoutedEventArgs e)
         {
-            this.Close();
+             MessageBoxResult messageBoxResult = MessageBox.Show("Сохранить изображение перед выходом?", "Выход",
+                 MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+            if (messageBoxResult == MessageBoxResult.Cancel) return;
+            else if (messageBoxResult == MessageBoxResult.No) this.Close();
+            else if (messageBoxResult == MessageBoxResult.Yes) MenuItemSave(sender, e);
         }
 
-        private void MenuItem_Click_4(object sender, RoutedEventArgs e)
+        private void CanvasClear(object sender, RoutedEventArgs e)
         {
             canvas.Children.Clear();
         }
 
-        private void MenuItem_Click_5(object sender, RoutedEventArgs e)
+        private void MenuItemAddImage(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -185,17 +204,13 @@ namespace Media_Editor_1._0._2
                     rect.SetValue(Canvas.TopProperty, 15.0);
                 }
             }
-            catch (IOException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            catch (ArgumentException ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-        //зумирование 
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+
+        } 
+        private void ZoomSliderValueChange(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 
             if (onFirst == 0) return;
@@ -205,21 +220,109 @@ namespace Media_Editor_1._0._2
             st.ScaleX = zoomKoeficient + (sliderZoom.Value / 100) - 1;
             st.ScaleY = zoomKoeficient + (sliderZoom.Value / 100) - 1;
             labelZoom.Content = sliderZoom.Value.ToString("#.##") + " %";
+
         }
-        private void scrollViewer_MouseWheel(object sender, MouseWheelEventArgs e)
+
+        private void zoomMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (e.Delta > 0)
-                sliderZoom.Value += 10;
-
-            else if (e.Delta < 0)
-                sliderZoom.Value += 10;
-
+            if (key == Key.LeftCtrl)
+            {
+                if (e.Delta > 0)
+                {
+                    sliderZoom.Value += 10;
+                    scrollViewer.LineDown();
+                    scrollViewer.LineDown();
+                    scrollViewer.LineDown();
+                }
+                else if (e.Delta < 0)
+                {
+                    sliderZoom.Value -= 10;
+                    scrollViewer.LineUp();
+                    scrollViewer.LineUp();
+                    scrollViewer.LineUp();
+                }
+            }
+            else if (key == Key.LeftShift)
+            {
+                if (e.Delta > 0)
+                {
+                    scrollViewer.LineDown();
+                    scrollViewer.LineDown();
+                    scrollViewer.LineDown();
+                }
+                else if (e.Delta < 0)
+                {
+                    scrollViewer.LineUp();
+                    scrollViewer.LineUp();
+                    scrollViewer.LineUp();
+                }
+                scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + e.Delta);
+            }
+            if (buttonSelectedString == "brushButton")
+            {
+                if (e.Delta > 0)
+                {
+                    scrollViewer.LineUp();
+                    scrollViewer.LineUp();
+                    scrollViewer.LineUp();
+                }
+                else if (e.Delta < 0)
+                {
+                    scrollViewer.LineDown();
+                    scrollViewer.LineDown();
+                    scrollViewer.LineDown();
+                }
+            }
         }
+
+
         private void sliderOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             opacitiValue = sliderOpacity.Value / 100;
             if (onFirst == 0) return;
             labelOpacity.Content = sliderOpacity.Value.ToString("#.##") + " %";
+        }
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            key = e.Key;
+            if (e.Key == Key.Space)
+            {
+                scrollViewer.Cursor = Cursors.ScrollAll;
+            }
+
+        }
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            key = Key.U;
+            switch (buttonSelectedString)
+            {
+                case "pointButton":
+                    scrollViewer.Cursor = Cursors.Arrow;
+                    break;
+                case "brushButton":
+                    scrollViewer.Cursor = Cursors.Cross;
+                    break;
+                case "colorFullButton":
+                    scrollViewer.Cursor = Cursors.Arrow;
+                    break;
+                case "rectButton":
+                    scrollViewer.Cursor = Cursors.Cross;
+                    break;
+                case "ellipsButton":
+                    scrollViewer.Cursor = Cursors.Cross;
+                    break;
+                case "lineButton":
+                    scrollViewer.Cursor = Cursors.Cross;
+                    break;
+                case "textButton":
+                    scrollViewer.Cursor = Cursors.IBeam;
+                    break;
+                case "deleteButton":
+                    scrollViewer.Cursor = Cursors.Arrow;
+                    break;
+                default:
+                    break;
+            }
         }
         //Инициализация кисти
         private void setBrush()
@@ -256,14 +359,21 @@ namespace Media_Editor_1._0._2
         //Ввод размера кисти только цифрами
         private void brushSize_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            double sizeBrush = 0;
-            Double.TryParse(brushSize.Text, out sizeBrush);
-
-            if (!Char.IsDigit(e.Text, 0))
+            try
             {
-                if (sizeBrush <= 1) brushSize.Text = "1";
-                e.Handled = true;
-                setBrush();
+                double sizeBrush = 0;
+                Double.TryParse(brushSize.Text, out sizeBrush);
+
+                if (!Char.IsDigit(e.Text, 0))
+                {
+                    if (sizeBrush <= 1) brushSize.Text = "1";
+                    e.Handled = true;
+                    setBrush();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         private void brushSize_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -285,11 +395,15 @@ namespace Media_Editor_1._0._2
         {
             double sizeFont = 8;
             Double.TryParse(fontSize.Text, out sizeFont);
-
             if (!Char.IsDigit(e.Text, 0))
             {
                 if (sizeFont <= 8) fontSize.Text = "8";
                 if (sizeFont > 300) fontSize.Text = "300";
+                if (richTextBox != null)
+                {
+                    richTextBox.SelectAll();
+                    richTextBox.Focus();
+                }
                 e.Handled = true;
             }
         }
@@ -304,6 +418,59 @@ namespace Media_Editor_1._0._2
             else if (e.Delta < 0 && sizeFont > 8)
                 sizeFont -= 1;
             fontSize.Text = sizeFont.ToString();
+            if (richTextBox != null)
+            {
+                richTextBox.SelectAll();
+                richTextBox.Focus();
+            }
+        }
+        private void textFontBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (richTextBox != null)
+            {
+                richTextBox.SelectAll();
+                richTextBox.Focus();
+            }
+        }
+        private void colorPickerFont_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
+        {
+            if (richTextBox != null)
+            {
+                richTextBox.SelectAll();
+                richTextBox.Focus();
+            }
+        }
+        private void isBold_Checked(object sender, RoutedEventArgs e)
+        {
+            if (richTextBox != null)
+            {
+                richTextBox.SelectAll();
+                richTextBox.Focus();
+            }
+        }
+        private void isBold_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (richTextBox != null)
+            {
+                richTextBox.SelectAll();
+                richTextBox.Focus();
+            }
+        }
+        private void isItalic_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (richTextBox != null)
+            {
+                richTextBox.SelectAll();
+                richTextBox.Focus();
+            }
+        }
+        private void isItalic_Checked(object sender, RoutedEventArgs e)
+        {
+            if (richTextBox != null)
+            {
+                richTextBox.SelectAll();
+                richTextBox.Focus();
+            }
         }
         private void isTransformation_Checked(object sender, RoutedEventArgs e)
         {
@@ -319,9 +486,9 @@ namespace Media_Editor_1._0._2
                 }
                 this.pointButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-
+                MessageBox.Show(ex.Message);
             }
         }
         private void isTransformation_Unchecked(object sender, RoutedEventArgs e)
@@ -341,9 +508,9 @@ namespace Media_Editor_1._0._2
                 }
                 cleanShapeCanvas();
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-
+                MessageBox.Show(ex.Message);
             }
         }
         private void cleanShapeCanvas()
@@ -352,6 +519,7 @@ namespace Media_Editor_1._0._2
             {
                 var children = canvas.Children.OfType<Shape>().ToList();
                 Shape el = null;
+                shape = null;
                 foreach (Shape element in children)
                 {
                     if (element.Tag == "shapeTransform")
@@ -360,12 +528,11 @@ namespace Media_Editor_1._0._2
                     }
                     if (el != null && stringToCleanShapes(element) == stringToCleanShapes(el)) canvas.Children.Remove(element);
                     el = element;
-
                 }
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-
+                MessageBox.Show(ex.Message);
             }
         }
         private string stringToCleanShapes(Shape shape)
@@ -375,90 +542,116 @@ namespace Media_Editor_1._0._2
 
         private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            setBrush();
-            switch (buttonSelectedString)
+            if (key == Key.Space)
             {
-                case "pointButton":
-                    buttonPointMouseDown(sender, e);
-                    break;
-                case "brushButton":
-                    buttonBrushMouseDown(sender, e);
-                    break;
-                case "colorFullButton":
-                    buttonClickEvent(sender, e);
-                    break;
-                case "rectButton":
-                    rectButtonDown(sender, e);
-                    break;
-                case "ellipsButton":
-                    ellipsButtonDown(sender, e);
-                    break;
-                case "lineButton":
-                    buttonLineMouseDown(sender, e);
-                    break;
-                case "textButton":
-                    buttonTextMouseDown(sender, e);
-                    break;
-                case "deleteButton":
-                    buttonClickEvent(sender, e);
-                    break;
-                default:
-                    break;
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    prev = Mouse.GetPosition(canvas);
+                }
+            }
+            else
+            {
+                setBrush();
+                switch (buttonSelectedString)
+                {
+                    case "pointButton":
+                        buttonPointMouseDown(sender, e);
+                        break;
+                    case "brushButton":
+                        buttonBrushMouseDown(sender, e);
+                        break;
+                    case "colorFullButton":
+                        buttonClickEvent(sender, e);
+                        break;
+                    case "rectButton":
+                        rectButtonDown(sender, e);
+                        break;
+                    case "ellipsButton":
+                        ellipsButtonDown(sender, e);
+                        break;
+                    case "lineButton":
+                        buttonLineMouseDown(sender, e);
+                        break;
+                    case "textButton":
+                        buttonTextMouseDown(sender, e);
+                        break;
+                    case "deleteButton":
+                        buttonClickEvent(sender, e);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
-
-            switch (buttonSelectedString)
+            if (key == Key.Space)
             {
-                case "pointButton":
-                    buttonPointMouseMove(sender, e);
-                    break;
-                case "brushButton":
-                    buttonBrushMouseMove(sender, e);
-                    break;
-                case "colorFullButton":
-                    break;
-                case "rectButton":
-                    rectButtonMove(sender, e);
-                    break;
-                case "ellipsButton":
-                    ellipsButtonMove(sender, e);
-                    break;
-                case "lineButton":
-                    buttonLineMouseMove(sender, e);
-                    break;
-                case "deleteButton":
-                    break;
-                default:
-                    break;
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + (prev.Y - Mouse.GetPosition(canvas).Y));
+                    scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + (prev.X - Mouse.GetPosition(canvas).X));
+                }
+            }
+            else
+            {
+                switch (buttonSelectedString)
+                {
+                    case "pointButton":
+                        buttonPointMouseMove(sender, e);
+                        break;
+                    case "brushButton":
+                        buttonBrushMouseMove(sender, e);
+                        break;
+                    case "colorFullButton":
+                        break;
+                    case "rectButton":
+                        rectButtonMove(sender, e);
+                        break;
+                    case "ellipsButton":
+                        ellipsButtonMove(sender, e);
+                        break;
+                    case "lineButton":
+                        buttonLineMouseMove(sender, e);
+                        break;
+                    case "deleteButton":
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         private void canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
-
-            switch (buttonSelectedString)
+            if (key == Key.Space)
             {
-                case "pointButton":
-                    break;
-                case "brushButton":
-                    buttonBrushMouseUp(sender, e);
-                    break;
-                case "colorFullButton":
-                    break;
-                case "rectButton":
-                    rectButtonUp(sender, e);
-                    break;
-                case "ellipsButton":
-                    ellipsButtonUp(sender, e);
-                    break;
-                case "lineButton":
-                    buttonLineMouseUp(sender, e);
-                    break;
-                case "deleteButton":
-                    break;
-                default:
-                    break;
+
+            }
+            else
+            {
+                switch (buttonSelectedString)
+                {
+                    case "pointButton":
+                        break;
+                    case "brushButton":
+                        buttonBrushMouseUp(sender, e);
+                        break;
+                    case "colorFullButton":
+                        break;
+                    case "rectButton":
+                        rectButtonUp(sender, e);
+                        break;
+                    case "ellipsButton":
+                        ellipsButtonUp(sender, e);
+                        break;
+                    case "lineButton":
+                        buttonLineMouseUp(sender, e);
+                        break;
+                    case "deleteButton":
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -523,7 +716,9 @@ namespace Media_Editor_1._0._2
             cleanShapeCanvas();
             selectButon.BorderBrush = colorButtonSelected;
             buttonSelectedString = selectButon.Name;
+            if (buttonSelectedString == "pointButton") isTransformation.IsChecked = true;
             if (isTransformation.IsChecked.Value && buttonSelectedString != "pointButton") isTransformation.IsChecked = false;
+            scrollViewer.Focus();
         }
 
         private void buttonPointMouseDown(object sender, MouseButtonEventArgs e)
@@ -564,8 +759,9 @@ namespace Media_Editor_1._0._2
 
                 }
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
         private void buttonPointMouseMove(object sender, MouseEventArgs e)
@@ -575,12 +771,12 @@ namespace Media_Editor_1._0._2
                 if (!isTransformation.IsChecked.Value) return;
                 bool resX = false, resY = false;
                 double x1 = 0, y1 = 0;
-                Point position = new Point(x1, y1);
-                if (richTextBox != null) { x1 = richTextBox.Width; y1 = richTextBox.Height; position = e.GetPosition(richTextBox); }
+                Point position = new Point(0.0, 0.0);
                 if (shape != null) { x1 = shape.Width; y1 = shape.Height; position = e.GetPosition(shape); }
+                if (richTextBox != null) { x1 = richTextBox.Width; y1 = richTextBox.Height; position = e.GetPosition(richTextBox); }
 
-                if (position.X >= x1 - 30 && position.X <= x1) resX = true;
-                if (position.Y >= y1 - 30 && position.Y <= y1) resY = true;
+                if (position.X >= x1 - 30 && position.X < x1 && position.Y > 0 && position.Y < y1) resX = true;
+                if (position.Y >= y1 - 30 && position.Y < y1 && position.X > 0 && position.X < x1) resY = true;
                 if (resX && resY) scrollViewer.Cursor = Cursors.SizeNWSE;
                 else if (resX) scrollViewer.Cursor = Cursors.SizeWE;
                 else if (resY) scrollViewer.Cursor = Cursors.SizeNS;
@@ -614,8 +810,9 @@ namespace Media_Editor_1._0._2
                 }
 
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
         private void buttonPointMouseUp(object sender, MouseButtonEventArgs e)
@@ -627,85 +824,104 @@ namespace Media_Editor_1._0._2
                 resizeY = false;
 
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
 
 
         private void buttonBrushMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            try
             {
-                setBrush();
-                if (isPaint) return;
-                canvas.Children.Remove(shape);
-                brushCanvas = new Canvas();
-                brushCanvas.Width = canvas.Width;
-                brushCanvas.Height = canvas.Height;
-                brushCanvas.Opacity = opacitiValue;
-                brushCanvas.MouseDown += new MouseButtonEventHandler(buttonClickEvent);
-                canvas.Children.Add(brushCanvas);
-                isPaint = true;
-                prev = Mouse.GetPosition(canvas);
-                var dot = new Ellipse { Width = brushSizeDigit, Height = brushSizeDigit, Fill = color };
-                dot.SetValue(Canvas.LeftProperty, prev.X - brushSizeDigit / 2);
-                dot.SetValue(Canvas.TopProperty, prev.Y - brushSizeDigit / 2);
-                brushCanvas.Children.Add(dot);
+                if (key == Key.Space) return;
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    setBrush();
+                    if (isPaint) return;
+                    canvas.Children.Remove(shape);
+                    brushCanvas = new Canvas();
+                    brushCanvas.Width = canvas.Width;
+                    brushCanvas.Height = canvas.Height;
+                    brushCanvas.Opacity = opacitiValue;
+                    brushCanvas.MouseDown += new MouseButtonEventHandler(buttonClickEvent);
+                    canvas.Children.Add(brushCanvas);
+                    isPaint = true;
+                    prev = Mouse.GetPosition(canvas);
+                    var dot = new Ellipse { Width = brushSizeDigit, Height = brushSizeDigit, Fill = color };
+                    dot.SetValue(Canvas.LeftProperty, prev.X - brushSizeDigit / 2);
+                    dot.SetValue(Canvas.TopProperty, prev.Y - brushSizeDigit / 2);
+
+                    brushCanvas.Children.Add(dot);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         private void buttonBrushMouseMove(object sender, MouseEventArgs e)
         {
-            var point = Mouse.GetPosition(canvas);
-            if (e.LeftButton == MouseButtonState.Pressed)
+            try
             {
-                if (!isPaint) return;
-                var line = new Line
+                if (key == Key.Space) return;
+                var point = Mouse.GetPosition(canvas);
+                if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    Stroke = color,
-                    StrokeThickness = brushSizeDigit,
-                    X1 = prev.X,
-                    Y1 = prev.Y,
-                    X2 = point.X,
-                    Y2 = point.Y,
-                    StrokeStartLineCap = PenLineCap.Round,
-                    StrokeEndLineCap = PenLineCap.Round
-                };
+                    if (!isPaint) return;
+                    var line = new Line
+                    {
+                        Stroke = color,
+                        StrokeThickness = brushSizeDigit,
+                        X1 = prev.X,
+                        Y1 = prev.Y,
+                        X2 = point.X,
+                        Y2 = point.Y,
+                        StrokeStartLineCap = PenLineCap.Round,
+                        StrokeEndLineCap = PenLineCap.Round,
+                        StrokeLineJoin = PenLineJoin.Round
+                    };
 
-                prev = point;
-                brushCanvas.Children.Add(line);
+                    prev = point;
+                    brushCanvas.Children.Add(line);
+                }
+                else
+                {
+                    canvas.Children.Remove(shape);
+                    shape = new Ellipse
+                    {
+                        Tag = "shapeTransform",
+                        Width = brushSizeDigit,
+                        Height = brushSizeDigit,
+                        Fill = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
+                        Stroke = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
+                        Opacity = 0.3
+                    };
+                    shape.MouseWheel += new MouseWheelEventHandler(zoomMouseWheel);
+                    shape.SetValue(Canvas.LeftProperty, point.X - brushSizeDigit / 2);
+                    shape.SetValue(Canvas.TopProperty, point.Y - brushSizeDigit / 2);
+                    shape.MouseDown += new MouseButtonEventHandler(buttonBrushMouseDown);
+                    canvas.Children.Add(shape);
+
+                }
             }
-            else
+            catch (Exception ex)
             {
-                canvas.Children.Remove(shape);
-                shape = new Ellipse
-                {
-                    Tag = "shapeTransform",
-                    Width = brushSizeDigit,
-                    Height = brushSizeDigit,
-                    Fill = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
-                    Stroke = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
-                    Opacity = 0.3
-                };
-                shape.SetValue(Canvas.LeftProperty, point.X - brushSizeDigit / 2);
-                shape.SetValue(Canvas.TopProperty, point.Y - brushSizeDigit / 2);
-                shape.MouseDown += new MouseButtonEventHandler(buttonBrushMouseDown);
-                canvas.Children.Add(shape);
-
+                MessageBox.Show(ex.Message);
             }
         }
         private void buttonBrushMouseUp(object sender, MouseButtonEventArgs e)
         {
             try
             {
-
                 canvas.Children.Remove(shape);
                 isPaint = false;
                 cleanShapeCanvas();
             }
-            catch
+            catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("isError");
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -757,8 +973,9 @@ namespace Media_Editor_1._0._2
 
 
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -779,10 +996,12 @@ namespace Media_Editor_1._0._2
                     canvas.Children.Add(shape);
                 }
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
+
         private void rectButtonMove(object sender, MouseEventArgs e)
         {
             try
@@ -798,8 +1017,9 @@ namespace Media_Editor_1._0._2
                     shape.SetValue(Canvas.TopProperty, (prev.Y <= point.Y) ? prev.Y : point.Y);
                 }
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -809,6 +1029,7 @@ namespace Media_Editor_1._0._2
         {
             try
             {
+                if (shape == null) return;
                 canvas.Children.Remove(shape);
                 Point point = e.GetPosition(canvas);
                 double x = point.X - prev.X;
@@ -821,8 +1042,9 @@ namespace Media_Editor_1._0._2
                 canvas.Children.Add(rectangle);
                 cleanShapeCanvas();
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -843,8 +1065,9 @@ namespace Media_Editor_1._0._2
                     canvas.Children.Add(shape);
                 }
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
         private void ellipsButtonMove(object sender, MouseEventArgs e)
@@ -862,14 +1085,16 @@ namespace Media_Editor_1._0._2
                     shape.SetValue(Canvas.TopProperty, (prev.Y <= point.Y) ? prev.Y : point.Y);
                 }
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
         private void ellipsButtonUp(object sender, MouseEventArgs e)
         {
             try
             {
+                if (shape == null) return;
                 canvas.Children.Remove(shape);
                 Point point = e.GetPosition(canvas);
                 double x = point.X - prev.X;
@@ -882,44 +1107,60 @@ namespace Media_Editor_1._0._2
                 canvas.Children.Add(ellipsFn);
                 cleanShapeCanvas();
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
 
 
         private void buttonLineMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            try
             {
-                setBrush();
-                shape = new Line
+                if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    Tag = "shapeTransform",
-                    Fill = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
-                    Stroke = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
-                    Opacity = 0.3,
-                    StrokeThickness = brushSizeDigit,
-                    X1 = e.GetPosition(canvas).X,
-                    Y1 = e.GetPosition(canvas).Y
-                };
-                canvas.Children.Add(shape);
-                prev = Mouse.GetPosition(canvas);
+                    setBrush();
+                    shape = new Line
+                    {
+                        Tag = "shapeTransform",
+                        Fill = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
+                        Stroke = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
+                        Opacity = 0.3,
+                        StrokeThickness = brushSizeDigit,
+                        X1 = e.GetPosition(canvas).X,
+                        Y1 = e.GetPosition(canvas).Y
+                    };
+                    canvas.Children.Add(shape);
+                    prev = Mouse.GetPosition(canvas);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         private void buttonLineMouseMove(object sender, MouseEventArgs e)
         {
-            var point = Mouse.GetPosition(canvas);
-            if (e.LeftButton == MouseButtonState.Pressed)
+            try
             {
-                ((Line)shape).X2 = point.X;
-                ((Line)shape).Y2 = point.Y;
+                var point = Mouse.GetPosition(canvas);
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    ((Line)shape).X2 = point.X;
+                    ((Line)shape).Y2 = point.Y;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         private void buttonLineMouseUp(object sender, MouseButtonEventArgs e)
         {
             try
             {
+                if (shape == null) return;
                 canvas.Children.Remove(shape);
                 Point point = e.GetPosition(canvas);
                 var line = new Line
@@ -937,32 +1178,40 @@ namespace Media_Editor_1._0._2
                 canvas.Children.Add(line);
                 cleanShapeCanvas();
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
 
         private void buttonTextMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            try
             {
-                prev = Mouse.GetPosition(canvas);
-                RichTextBox text = new RichTextBox();
-                text.AppendText("Введите текст");
-                text.Background = new SolidColorBrush(Colors.Transparent);
-                text.BorderBrush = new SolidColorBrush(Colors.Transparent);
-                text.Document.TextAlignment = TextAlignment.Center;
-                text.Width = 200;
-                text.Height = 100;
-                Canvas.SetLeft(text, prev.X - text.Width / 2);
-                Canvas.SetTop(text, prev.Y - text.Height / 2);
-                text.SelectionChanged += new RoutedEventHandler(setTextSetting);
-                text.MouseMove += new MouseEventHandler(isTransform);
-                text.PreviewMouseDown += new MouseButtonEventHandler(buttonPointMouseDown);
-                text.PreviewMouseMove += new MouseEventHandler(buttonPointMouseMove);
-                text.PreviewMouseUp += new MouseButtonEventHandler(buttonPointMouseUp);
-                setTextSetting(text, e);
-                canvas.Children.Add(text);
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    prev = Mouse.GetPosition(canvas);
+                    RichTextBox text = new RichTextBox();
+                    text.AppendText("Введите текст");
+                    text.Background = new SolidColorBrush(Colors.Transparent);
+                    text.BorderBrush = new SolidColorBrush(Colors.Transparent);
+                    text.Document.TextAlignment = TextAlignment.Center;
+                    text.Width = 200;
+                    text.Height = 100;
+                    Canvas.SetLeft(text, prev.X - text.Width / 2);
+                    Canvas.SetTop(text, prev.Y - text.Height / 2);
+                    text.SelectionChanged += new RoutedEventHandler(setTextSetting);
+                    text.MouseMove += new MouseEventHandler(isTransform);
+                    text.PreviewMouseDown += new MouseButtonEventHandler(buttonPointMouseDown);
+                    text.PreviewMouseMove += new MouseEventHandler(buttonPointMouseMove);
+                    text.PreviewMouseUp += new MouseButtonEventHandler(buttonPointMouseUp);
+                    setTextSetting(text, e);
+                    canvas.Children.Add(text);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         private void setTextSetting(object sender, RoutedEventArgs e)
@@ -978,11 +1227,11 @@ namespace Media_Editor_1._0._2
                 text.FontStyle = (isItalic.IsChecked.Value) ? FontStyles.Italic : FontStyles.Normal;
                 text.FontWeight = (isBold.IsChecked.Value) ? FontWeights.Bold : FontWeights.Normal;
                 text.Foreground = new SolidColorBrush(colorPickerFont.SelectedColor.Value);
+                richTextBox = text;
             }
             catch (Exception ex)
             {
-
-
+                MessageBox.Show(ex.Message);
             }
         }
         private void isTransform(object sender, RoutedEventArgs e)
@@ -1009,12 +1258,10 @@ namespace Media_Editor_1._0._2
                     text.Cursor = Cursors.IBeam;
                     text.IsReadOnly = false;
                 }
-
             }
             catch (Exception ex)
             {
-
-
+                MessageBox.Show(ex.Message);
             }
         }
     }

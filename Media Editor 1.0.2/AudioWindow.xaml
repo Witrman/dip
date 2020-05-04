@@ -212,7 +212,7 @@
         <Button Content="-"  Style="{DynamicResource DefaultButtonStyle}" Padding="0,-1,-1,0" Margin="0,0,23,46" Height="18" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="18" Click="Button_Click_1"/>
         <ScrollViewer Name="scrollViewer" Margin="60,25,38,89" Background="#FF787878" MouseDown="scrollViewer_MouseDown" MouseMove="scrollViewer_MouseMove" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" MouseUp="scrollViewer_MouseUp">
             <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="300" VerticalAlignment="Top" Width="694" Background="#FF7E7E7E" MouseDown="canvas_MouseDown" MouseMove="canvas_MouseMove" SizeChanged="canvas_SizeChanged" MouseUp="canvas_MouseUp">
-                <Slider Name="sliderOfTime"  Height="30" Width="704"  Delay="0" Interval="10" IsMoveToPointEnabled="True" Maximum="300" TickPlacement="BottomRight" Value="0" Canvas.Left="-5.4" Canvas.Top="-6" ValueChanged="sliderOfTime_ValueChanged" />
+                <Slider Name="sliderOfTime"  Height="30" Width="704"  Delay="0" Interval="10" IsMoveToPointEnabled="True" Maximum="1000" TickPlacement="BottomRight" Value="0" Canvas.Left="-5.4" Canvas.Top="-6" ValueChanged="sliderOfTime_ValueChanged" TickFrequency="4" />
                
             </Canvas>
         </ScrollViewer>

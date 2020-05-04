@@ -23,7 +23,7 @@ namespace Media_Editor_1._0._2
         public MainWindow()
         {
             InitializeComponent();
-           Button_Click_1(null, null);
+          Button_Click(null, null);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

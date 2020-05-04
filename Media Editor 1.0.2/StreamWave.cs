@@ -14,7 +14,9 @@ namespace Media_Editor_1._0._2
         public StreamWave(BlockAlignReductionStream stream, WaveOutEvent output)
         {
             this.output = output;
-            this.stream = stream; 
+            this.stream = stream;
+            timer.Tick += new EventHandler(player);
+            timer.Interval = new TimeSpan(0, 0, 0, 1);
         }
 
         public long GetPosition()
@@ -38,12 +40,10 @@ namespace Media_Editor_1._0._2
         }
 
         public void Play()
-        {
-             timer.Tick += new EventHandler(plpl);
-            timer.Interval = new TimeSpan(0, 0, 1);
+        { 
             timer.Start(); 
         }
-        public void plpl(object sender, EventArgs e)
+        public void player(object sender, EventArgs e)
         {
             posOnTrek++;
             if (posOnTrek >= pos) {
@@ -55,7 +55,11 @@ namespace Media_Editor_1._0._2
             timer.Stop();
             output.Pause(); 
         }
- 
+
+        public void Stop() {
+            timer.Stop();
+            output.Stop();
+        }
 
         public void DisposeWave()
         {

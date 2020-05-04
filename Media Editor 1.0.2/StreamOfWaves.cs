@@ -32,12 +32,20 @@ namespace Media_Editor_1._0._2
         }
         public System.Windows.Shapes.Rectangle Add(BlockAlignReductionStream stream, WaveOutEvent output, AudioFileReader streamTrek)
         {
+            try
+            {
+                // waves.Add(new StreamWave(stream, output));
+                settings.Width = Convert.ToInt32(streamTrek.TotalTime.TotalSeconds * 100);
+                System.Windows.Shapes.Rectangle waveRect = RenderThreadFunc(streamTrek, provider, settings);
+                waveRect.Width = streamTrek.TotalTime.TotalMilliseconds / 80;
+                return waveRect;
 
-            waves.Add(new StreamWave(stream, output));
-            settings.Width = Convert.ToInt32(streamTrek.TotalTime.TotalSeconds * 100);
-            System.Windows.Shapes.Rectangle waveRect = RenderThreadFunc(streamTrek, provider, settings);
-            waveRect.Width = streamTrek.TotalTime.TotalMilliseconds/80;
-            return waveRect;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+            return null;
         }
         private System.Windows.Shapes.Rectangle RenderThreadFunc(AudioFileReader streamTrek, PeakProvider peakProvider, WaveFormRendererSettings settings)
         {
