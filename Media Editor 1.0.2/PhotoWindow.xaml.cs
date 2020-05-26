@@ -20,7 +20,10 @@ namespace Media_Editor_1._0._2
         private double resizeOnWidth, resizeOnHeight, onFirst, zoomKoeficient, brushSizeDigit, opacitiValue = 1;
         private SolidColorBrush colorButtonSelected = new SolidColorBrush(Color.FromRgb(185, 185, 185)),
             colorButtonNotSelected = new SolidColorBrush(Color.FromRgb(112, 112, 112)),
-            color;
+            color = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
+            fontColor = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+        private System.Windows.Forms.ColorDialog brushColorDialog = new System.Windows.Forms.ColorDialog(),
+            fontColorDialog = new System.Windows.Forms.ColorDialog();
         private String buttonSelectedString = "", file = "";
         private Point prev, pointToDrag;
         private Canvas brushCanvas;
@@ -38,7 +41,6 @@ namespace Media_Editor_1._0._2
                 shape = new Line();
                 textFontBox.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
                 textFontBox.SelectedIndex = 0;
-                createCanvas(400, 700);
             }
             catch (Exception ex)
             {
@@ -47,51 +49,79 @@ namespace Media_Editor_1._0._2
         }
         private void MenuItemCreate(object sender, RoutedEventArgs e)
         {
-            if (canvas.Children.Count >= 2)
-                if (MessageBox.Show("Вы уверены? Поле рисования не пустое.", "Вы уверены",
-                  MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.No) return;
-            createCanvas(400, 700);
+
+            Create create = new Create();
+            if (create.ShowDialog() == true)
+            {
+                if (canvas.Children.Count >= 2)
+                    if (MessageBox.Show("Вы уверены? Поле рисования не пустое.", "Вы уверены",
+                      MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.No) return;
+                createCanvas(create.HeightInt, create.WidthInt);
+            }
 
         }
 
         private void createCanvas(int height, int width)
         {
-            canvas.Children.Clear();
-            canvas.Height = height;
-            canvas.Width = width;
-            canvas.Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-            onFirst = canvas.Height;
-            lblName.Content = canvas.Height + " x " + canvas.Width;
-            zoomKoeficient = 550 / canvas.Height;
-            canvas.LayoutTransform = st;
-            sliderZoom.Value++;
-            sliderZoom.Value--;
-            buttonSelected(pointButton);
+            try
+            {
+                canvas.Children.Clear();
+                canvas.Height = height;
+                canvas.Width = width;
+                canvas.Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                onFirst = canvas.Height;
+                lblName.Content = canvas.Height + " x " + canvas.Width;
+                zoomKoeficient = 550 / canvas.Height;
+                canvas.LayoutTransform = st;
+                sliderZoom.Value++;
+                sliderZoom.Value--;
+                buttonSelected(pointButton);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         //Открытие файла
         private void MenuItemOpen(object sender, RoutedEventArgs e)
         {
-
-            OpenFileDialog openFile = new OpenFileDialog();
-            openFile.Filter = "Изображение |*.png;*.jpeg;*.jpg;*.bmp";
-            openFile.Title = "Открытие файла";
-            openFile.FilterIndex = 1;
-            openFile.RestoreDirectory = true;
-            if (openFile.ShowDialog() == true)
+            try
             {
-                canvas.Children.Clear();
-                file = openFile.FileName.ToString();
-                BitmapImage source = (BitmapImage)BitmapFromUri(new Uri(openFile.FileName));
-                canvas.Background = new ImageBrush(source);
-                canvas.Height = source.PixelHeight;
-                canvas.Width = source.PixelWidth;
-                zoomKoeficient = 550 / canvas.Height;
-                lblName.Content = " " + openFile.FileName + "    " + canvas.Height + " x " + canvas.Width;
-            }
+                OpenFileDialog openFile = new OpenFileDialog();
+                openFile.Filter = "Изображение |*.png;*.jpeg;*.jpg;*.bmp";
+                openFile.Title = "Открытие файла";
+                openFile.FilterIndex = 1;
+                openFile.RestoreDirectory = true;
+                if (openFile.ShowDialog() == true)
+                {
+                    canvas.Children.Clear();
+                    file = openFile.FileName.ToString();
+                    BitmapImage source = (BitmapImage)BitmapFromUri(new Uri(openFile.FileName));
+                    Rectangle rect = new Rectangle
+                    {
+                        Fill = new ImageBrush(source),
+                        Height = source.PixelHeight,
+                        Width = source.PixelWidth,
+                        Tag = "PhotoRectangle"
+                    };
+                    rect.MouseDown += new MouseButtonEventHandler(buttonClickEvent);
+                    canvas.Children.Add(rect); 
+                    rect.SetValue(Canvas.LeftProperty, 0.0);
+                    rect.SetValue(Canvas.TopProperty, 0.0);
+                    canvas.Height = source.PixelHeight;
+                    canvas.Width = source.PixelWidth;
+                    zoomKoeficient = 550 / canvas.Height;
+                    lblName.Content = " " + openFile.FileName + "    " + canvas.Height + " x " + canvas.Width;
+                }
 
-            sliderZoom.Value++;
-            sliderZoom.Value--;
+                sliderZoom.Value++;
+                sliderZoom.Value--;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
         public static ImageSource BitmapFromUri(Uri source)
         {
@@ -101,6 +131,7 @@ namespace Media_Editor_1._0._2
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             return bitmap;
+
         }
 
         //Сохранение  
@@ -129,8 +160,8 @@ namespace Media_Editor_1._0._2
             {
                 MessageBox.Show(ex.Message);
             }
-
         }
+
         private void MenuItemSave(object sender, RoutedEventArgs e)
         {
             if (file != "") saveFile(file);
@@ -166,12 +197,20 @@ namespace Media_Editor_1._0._2
         }
         private void Close(object sender, RoutedEventArgs e)
         {
-             MessageBoxResult messageBoxResult = MessageBox.Show("Сохранить изображение перед выходом?", "Выход",
-                 MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
-            if (messageBoxResult == MessageBoxResult.Cancel) return;
-            else if (messageBoxResult == MessageBoxResult.No) this.Close();
-            else if (messageBoxResult == MessageBoxResult.Yes) MenuItemSave(sender, e);
+            this.Close();
         }
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (canvas.Height!=0.0)
+            {
+                MessageBoxResult messageBoxResult = MessageBox.Show("Сохранить изображение перед выходом?", "Выход",
+                     MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+
+                if (messageBoxResult == MessageBoxResult.Cancel) e.Cancel = true;
+                else if (messageBoxResult == MessageBoxResult.Yes) MenuItemSave(sender, null);
+            }
+        }
+
 
         private void CanvasClear(object sender, RoutedEventArgs e)
         {
@@ -209,7 +248,31 @@ namespace Media_Editor_1._0._2
                 MessageBox.Show(ex.Message);
             }
 
-        } 
+        }
+        private void reSizeCanvas(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Change change = new Change();
+                change.labelSize.Content = "Ширина - " + canvas.Width + ", Высота - " + canvas.Height;
+                change.HeightBox.Text = canvas.Height.ToString();
+                change.WidthBox.Text = canvas.Width.ToString();
+                if (change.ShowDialog() == true) {
+                    canvas.Height = change.NewHeight;
+                    canvas.Width = change.NewWidth;
+                    zoomKoeficient = 550 / canvas.Height;
+                    lblName.Content = " " + file + "    " + canvas.Height + " x " + canvas.Width;
+                }
+
+                sliderZoom.Value++;
+                sliderZoom.Value--;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
         private void ZoomSliderValueChange(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 
@@ -275,7 +338,6 @@ namespace Media_Editor_1._0._2
             }
         }
 
-
         private void sliderOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             opacitiValue = sliderOpacity.Value / 100;
@@ -285,10 +347,48 @@ namespace Media_Editor_1._0._2
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             key = e.Key;
-            if (e.Key == Key.Space)
+            switch (key)
             {
-                scrollViewer.Cursor = Cursors.ScrollAll;
+                case Key.P:
+                    scrollViewer.Cursor = Cursors.Arrow;
+                    buttonSelected(pointButton);
+                    break;
+                case Key.B:
+                    setBrush();
+                    scrollViewer.Cursor = Cursors.Cross;
+                    buttonSelected(brushButton);
+                    break;
+                case Key.C:
+                    scrollViewer.Cursor = Cursors.Arrow;
+                    buttonSelected(colorFullButton);
+                    break;
+                case Key.R:
+                    scrollViewer.Cursor = Cursors.Cross;
+                    buttonSelected(rectButton);
+                    break;
+                case Key.E:
+                    scrollViewer.Cursor = Cursors.Cross;
+                    buttonSelected(ellipsButton);
+                    break;
+                case Key.L:
+                    scrollViewer.Cursor = Cursors.Cross;
+                    buttonSelected(lineButton);
+                    break;
+                case Key.T:
+                    scrollViewer.Cursor = Cursors.IBeam;
+                    buttonSelected(textButton);
+                    break;
+                case Key.D:
+                    scrollViewer.Cursor = Cursors.Arrow;
+                    buttonSelected(deleteButton);
+                    break;
+                case Key.Space:
+                    scrollViewer.Cursor = Cursors.ScrollAll; 
+                    break;
+                default:
+                    break;
             }
+
 
         }
         private void Window_KeyUp(object sender, KeyEventArgs e)
@@ -324,12 +424,10 @@ namespace Media_Editor_1._0._2
                     break;
             }
         }
-        //Инициализация кисти
         private void setBrush()
         {
             try
             {
-                color = new SolidColorBrush(colorPickerBrush.SelectedColor.Value);
                 double sizeBrush = 0;
                 Double.TryParse(brushSize.Text, out sizeBrush);
                 if (sizeBrush <= 150)
@@ -356,7 +454,30 @@ namespace Media_Editor_1._0._2
             }
 
         }
-        //Ввод размера кисти только цифрами
+        private void colorBrushPicker_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            brushColorDialog.ShowDialog();
+            System.Drawing.Color color1 = brushColorDialog.Color;
+            Color colorс = Colors.Black;
+            colorс.A = color1.A;
+            colorс.R = color1.R;
+            colorс.G = color1.G;
+            colorс.B = color1.B;
+            color = new SolidColorBrush(colorс);
+            colorBrushPicker.Fill = color;
+        }
+        private void colorFontPicker_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            fontColorDialog.ShowDialog();
+            System.Drawing.Color color1 = fontColorDialog.Color;
+            Color colorс = Colors.Black;
+            colorс.A = color1.A;
+            colorс.R = color1.R;
+            colorс.G = color1.G;
+            colorс.B = color1.B;
+            fontColor = new SolidColorBrush(colorс);
+            colorFontPicker.Fill = fontColor;
+        }
         private void brushSize_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             try
@@ -542,6 +663,7 @@ namespace Media_Editor_1._0._2
 
         private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (canvas.Height == 0) return;
             if (key == Key.Space)
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
@@ -585,6 +707,7 @@ namespace Media_Editor_1._0._2
         }
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
+            if (canvas.Height == 0) return;
             if (key == Key.Space)
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
@@ -623,6 +746,7 @@ namespace Media_Editor_1._0._2
         }
         private void canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (canvas.Height == 0) return;
             if (key == Key.Space)
             {
 
@@ -654,6 +778,7 @@ namespace Media_Editor_1._0._2
                 }
             }
         }
+
 
         private void scroll_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -706,7 +831,6 @@ namespace Media_Editor_1._0._2
         }
         private void deleteButton_Click(object sender, RoutedEventArgs e)
         {
-
             scrollViewer.Cursor = Cursors.Arrow;
             buttonSelected(deleteButton);
         }
@@ -720,7 +844,55 @@ namespace Media_Editor_1._0._2
             if (isTransformation.IsChecked.Value && buttonSelectedString != "pointButton") isTransformation.IsChecked = false;
             scrollViewer.Focus();
         }
+        private void buttonClickEvent(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                setBrush();
+                if (buttonSelectedString == "colorFullButton")
+                {
+                    switch (sender.GetType().Name.ToString())
+                    {
+                        case "Rectangle":
+                            if (((Rectangle)sender).Tag == "PhotoRectangle") return;
+                            ((Rectangle)sender).Fill = color;
+                            break;
+                        case "Ellipse":
+                            ((Ellipse)sender).Fill = color;
+                            break;
+                        case "Line":
+                            ((Line)sender).Stroke = color;
+                            break;
+                    }
+                }
 
+                if (buttonSelectedString == "deleteButton")
+                {
+                    switch (sender.GetType().Name.ToString())
+                    {
+                        case "Rectangle":
+                            canvas.Children.Remove((Rectangle)sender);
+                            break;
+                        case "Canvas":
+                            canvas.Children.Remove((Canvas)sender);
+                            break;
+                        case "Ellipse":
+                            canvas.Children.Remove((Ellipse)sender);
+                            break;
+                        case "Line":
+                            canvas.Children.Remove((Line)sender);
+                            break;
+                        case "RichTextBox":
+                            canvas.Children.Remove((RichTextBox)sender);
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
         private void buttonPointMouseDown(object sender, MouseButtonEventArgs e)
         {
             try
@@ -758,6 +930,7 @@ namespace Media_Editor_1._0._2
                     if (scrollViewer.Cursor == Cursors.SizeNS || scrollViewer.Cursor == Cursors.SizeNWSE) resizeY = true;
 
                 }
+                
             }
             catch (Exception ex)
             {
@@ -805,8 +978,8 @@ namespace Media_Editor_1._0._2
                 }
                 else if (e.RightButton == MouseButtonState.Pressed)
                 {
-                    if (richTextBox != null) richTextBox.RenderTransform = new RotateTransform(e.GetPosition(canvas).Y - pointToDrag.Y, richTextBox.Width / 2, richTextBox.Height / 2);
-                    if (shape != null) shape.RenderTransform = new RotateTransform(e.GetPosition(canvas).Y - pointToDrag.Y, shape.Width / 2, shape.Height / 2);
+                    if (richTextBox != null) richTextBox.RenderTransform = new RotateTransform((e.GetPosition(canvas).X - pointToDrag.X) / 4, richTextBox.Width / 2, richTextBox.Height / 2);
+                    if (shape != null) shape.RenderTransform = new RotateTransform((e.GetPosition(canvas).X - pointToDrag.X)/4, shape.Width /2 , shape.Height / 2);
                 }
 
             }
@@ -911,6 +1084,8 @@ namespace Media_Editor_1._0._2
                 MessageBox.Show(ex.Message);
             }
         }
+ 
+
         private void buttonBrushMouseUp(object sender, MouseButtonEventArgs e)
         {
             try
@@ -918,60 +1093,6 @@ namespace Media_Editor_1._0._2
                 canvas.Children.Remove(shape);
                 isPaint = false;
                 cleanShapeCanvas();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void buttonClickEvent(object sender, MouseButtonEventArgs e)
-        {
-            try
-            {
-                setBrush();
-                if (buttonSelectedString == "colorFullButton")
-                {
-                    switch (sender.GetType().Name.ToString())
-                    {
-                        case "Rectangle":
-                            if (((Rectangle)sender).Tag == "PhotoRectangle") return;
-                            ((Rectangle)sender).Fill = color;
-                            break;
-                        case "Ellipse":
-                            ((Ellipse)sender).Fill = color;
-                            break;
-                        case "Line":
-                            ((Line)sender).Stroke = color;
-                            break;
-                    }
-                }
-
-                if (buttonSelectedString == "deleteButton")
-                {
-                    switch (sender.GetType().Name.ToString())
-                    {
-                        case "Rectangle":
-                            canvas.Children.Remove((Rectangle)sender);
-                            break;
-                        case "Canvas":
-                            canvas.Children.Remove((Canvas)sender);
-                            break;
-                        case "Ellipse":
-                            canvas.Children.Remove((Ellipse)sender);
-                            break;
-                        case "Line":
-                            canvas.Children.Remove((Line)sender);
-                            break;
-                        case "RichTextBox":
-                            canvas.Children.Remove((RichTextBox)sender);
-                            break;
-
-                    }
-
-                }
-
-
             }
             catch (Exception ex)
             {
@@ -1001,6 +1122,8 @@ namespace Media_Editor_1._0._2
                 MessageBox.Show(ex.Message);
             }
         }
+
+
 
         private void rectButtonMove(object sender, MouseEventArgs e)
         {
@@ -1226,7 +1349,7 @@ namespace Media_Editor_1._0._2
                 text.FontSize = Convert.ToDouble(fontSize.Text);
                 text.FontStyle = (isItalic.IsChecked.Value) ? FontStyles.Italic : FontStyles.Normal;
                 text.FontWeight = (isBold.IsChecked.Value) ? FontWeights.Bold : FontWeights.Normal;
-                text.Foreground = new SolidColorBrush(colorPickerFont.SelectedColor.Value);
+                text.Foreground = fontColor;
                 richTextBox = text;
             }
             catch (Exception ex)
